@@ -399,9 +399,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/eslintrc@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "@eslint/eslintrc@npm:1.4.0"
+"@eslint/eslintrc@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "@eslint/eslintrc@npm:1.4.1"
   dependencies:
     ajv: ^6.12.4
     debug: ^4.3.2
@@ -412,11 +412,11 @@ __metadata:
     js-yaml: ^4.1.0
     minimatch: ^3.1.2
     strip-json-comments: ^3.1.1
-  checksum: 73e39c833deafde8d8706e6fa9b52b6d99927c094ead8e405ea4174e8197ec24aac9ba88ae38cc8ad32eaccf07b9c7fc5dc70761d1fba6da41a928691447305f
+  checksum: cd3e5a8683db604739938b1c1c8b77927dc04fce3e28e0c88e7f2cd4900b89466baf83dfbad76b2b9e4d2746abdd00dd3f9da544d3e311633d8693f327d04cd7
   languageName: node
   linkType: hard
 
-"@favware/cliff-jumper@npm:^1.8.8":
+"@favware/cliff-jumper@npm:^1.8.7, @favware/cliff-jumper@npm:^1.8.8":
   version: 1.9.0
   resolution: "@favware/cliff-jumper@npm:1.9.0"
   dependencies:
@@ -461,6 +461,24 @@ __metadata:
     nd: ./dist/cli.js
     npm-deprecate: ./dist/cli.js
   checksum: 83b1c9259dfcab376dd8702b85c5875811c60a4c57fb562c4431b3d7523f7f2e80435da31c63e55246659d4da8d0fc3da20f7f5f40e0dd103e7d681ba6a55d32
+  languageName: node
+  linkType: hard
+
+"@favware/rollup-type-bundler@npm:^1.0.11":
+  version: 1.0.11
+  resolution: "@favware/rollup-type-bundler@npm:1.0.11"
+  dependencies:
+    "@sapphire/utilities": ^3.9.2
+    colorette: ^2.0.19
+    commander: ^9.4.0
+    js-yaml: ^4.1.0
+    rollup: ^2.78.1
+    rollup-plugin-dts: ^4.2.2
+    typescript: ^4.7.4
+  bin:
+    rollup-type-bundler: ./dist/cli.js
+    rtb: ./dist/cli.js
+  checksum: f2f6b42d2cd5a67d1e9aabb25cfe925a00e922a2b17c0c0ae9b2f0bd574bbb2073e8e8824bbd5072fdf3a8f91c3eb6fbe2d582014222fd2ddeffbfa9950bf1fd
   languageName: node
   linkType: hard
 
@@ -579,6 +597,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@joshdb/provider@npm:2.0.0-next.1a837f5.0":
+  version: 2.0.0-next.1a837f5.0
+  resolution: "@joshdb/provider@npm:2.0.0-next.1a837f5.0"
+  dependencies:
+    "@sapphire/utilities": ^3.9.3
+    reflect-metadata: ^0.1.13
+  checksum: b8289360849e31015664931c88d5dd56843872e2f2c052a5a0e247dd076aef0619981afbccd141b39f42bb7bcbfd723b4b177bad1ee84c00a51097580defbd85
+  languageName: node
+  linkType: hard
+
 "@joshdb/provider@npm:2.0.0-next.24b745c.0":
   version: 2.0.0-next.24b745c.0
   resolution: "@joshdb/provider@npm:2.0.0-next.24b745c.0"
@@ -621,6 +649,19 @@ __metadata:
   checksum: ed8ecbb8af1782e4ec514fb27adb7b0d62615ae36dd1037be5ee569c28cd462955baff26bf8c7fa43672f804434c6b2a732904da8709917634373709dd49a073
   languageName: node
   linkType: hard
+
+"@joshdb/transform@workspace:packages/transform":
+  version: 0.0.0-use.local
+  resolution: "@joshdb/transform@workspace:packages/transform"
+  dependencies:
+    "@favware/cliff-jumper": ^1.8.7
+    "@favware/rollup-type-bundler": ^1.0.11
+    "@joshdb/provider": 2.0.0-next.1a837f5.0
+    "@sapphire/utilities": ^3.9.3
+    typedoc: ^0.23.14
+    typedoc-json-parser: ^3.2.0
+  languageName: unknown
+  linkType: soft
 
 "@jridgewell/resolve-uri@npm:3.1.0, @jridgewell/resolve-uri@npm:^3.0.3":
   version: 3.1.0
@@ -780,7 +821,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sapphire/utilities@npm:3.11.0, @sapphire/utilities@npm:^3.11.0":
+"@sapphire/utilities@npm:3.11.0, @sapphire/utilities@npm:^3.11.0, @sapphire/utilities@npm:^3.9.2, @sapphire/utilities@npm:^3.9.3":
   version: 3.11.0
   resolution: "@sapphire/utilities@npm:3.11.0"
   checksum: 3c8521038b8879524e8114f39eefc8b3b06cf825995f709684238b5cb14bd7df06d232a26a88f79160df290a66f9aa3133f5ce4ff8e2398033db9f301ad31e0d
@@ -1587,7 +1628,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^9.4.1":
+"commander@npm:^9.4.0, commander@npm:^9.4.1":
   version: 9.4.1
   resolution: "commander@npm:9.4.1"
   checksum: bfb18e325a5bdf772763c2213d5c7d9e77144d944124e988bcd8e5e65fb6d45d5d4e86b09155d0f2556c9a59c31e428720e57968bcd050b2306e910a0bf3cf13
@@ -2100,10 +2141,10 @@ __metadata:
   linkType: hard
 
 "eslint@npm:^8.22.0, eslint@npm:^8.30.0":
-  version: 8.30.0
-  resolution: "eslint@npm:8.30.0"
+  version: 8.31.0
+  resolution: "eslint@npm:8.31.0"
   dependencies:
-    "@eslint/eslintrc": ^1.4.0
+    "@eslint/eslintrc": ^1.4.1
     "@humanwhocodes/config-array": ^0.11.8
     "@humanwhocodes/module-importer": ^1.0.1
     "@nodelib/fs.walk": ^1.2.8
@@ -2144,7 +2185,7 @@ __metadata:
     text-table: ^0.2.0
   bin:
     eslint: bin/eslint.js
-  checksum: b7525bb465b342665c3b8bab7e114d514ef1bc4e79f211c919863f9c71767e7412ec82383a22614a92d159783f91101018817000f7c61ce69a5e7015280cafaf
+  checksum: 5e5688bb864edc6b12d165849994812eefa67fb3fc44bb26f53659b63edcd8bcc68389d27cc6cc9e5b79ee22f24b6f311fa3ed047bddcafdec7d84c1b5561e4f
   languageName: node
   linkType: hard
 
@@ -3276,7 +3317,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.26.7":
+"magic-string@npm:^0.26.6, magic-string@npm:^0.26.7":
   version: 0.26.7
   resolution: "magic-string@npm:0.26.7"
   dependencies:
@@ -4309,6 +4350,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rollup-plugin-dts@npm:^4.2.2":
+  version: 4.2.3
+  resolution: "rollup-plugin-dts@npm:4.2.3"
+  dependencies:
+    "@babel/code-frame": ^7.18.6
+    magic-string: ^0.26.6
+  peerDependencies:
+    rollup: ^2.55
+    typescript: ^4.1
+  dependenciesMeta:
+    "@babel/code-frame":
+      optional: true
+  checksum: b1de94202d0574e7c12105bf0d013e7142c1b9b74d6b83d194d870dcdc281e90cff45ed47a0ab1c62280cc25e75f522e1278ec0ba89c8f75b8bcb56dc98c2c63
+  languageName: node
+  linkType: hard
+
 "rollup-plugin-dts@npm:^5.0.0":
   version: 5.1.0
   resolution: "rollup-plugin-dts@npm:5.1.0"
@@ -4341,7 +4398,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^2.79.1":
+"rollup@npm:^2.78.1, rollup@npm:^2.79.1":
   version: 2.79.1
   resolution: "rollup@npm:2.79.1"
   dependencies:
@@ -5087,6 +5144,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typedoc-json-parser@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "typedoc-json-parser@npm:3.2.0"
+  dependencies:
+    "@favware/colorette-spinner": ^1.0.1
+    colorette: ^2.0.19
+    commander: ^9.4.0
+    js-yaml: ^4.1.0
+    tslib: ^2.4.0
+    typedoc: ^0.23.14
+  bin:
+    typedoc-json-parser: ./dist/bin/index.js
+  checksum: dbcfc2def2eaf2b3595f7a91ea85b940925cbf75d07de4ff9a698612142803cd01f2fc811d9cbe2e0e3078d23ec57cd9ce2266a6d65c5b5548133b35a3895f4c
+  languageName: node
+  linkType: hard
+
 "typedoc-json-parser@npm:^7.0.1":
   version: 7.0.2
   resolution: "typedoc-json-parser@npm:7.0.2"
@@ -5104,7 +5177,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc@npm:^0.23.20":
+"typedoc@npm:^0.23.14, typedoc@npm:^0.23.20":
   version: 0.23.23
   resolution: "typedoc@npm:0.23.23"
   dependencies:
