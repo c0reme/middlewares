@@ -8,7 +8,7 @@
 
 [![GitHub](https://img.shields.io/github/license/josh-development/middlewares)](https://github.com/josh-development/middlewares/blob/main/LICENSE.md)
 [![codecov](https://codecov.io/gh/josh-development/middlewares/branch/main/graph/badge.svg?token=JnJcjxqT3k)](https://codecov.io/gh/josh-development/middlewares)
-[![npm](https://img.shields.io/npm/v/@joshdb/auto-ensure?color=crimson&logo=npm&style=flat-square)](https://www.npmjs.com/package/@joshdb/auto-ensure)
+[![npm](https://img.shields.io/npm/v/@joshdb/transform?color=crimson&logo=npm&style=flat-square)](https://www.npmjs.com/package/@joshdb/transform)
 
 [![Support Server](https://discord.com/api/guilds/298508738623438848/embed.png?style=banner2)](https://discord.gg/N7ZKH3P)
 
