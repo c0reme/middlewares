@@ -40,12 +40,18 @@ interface ContextData<StoredValue = unknown> {
    * Manipulates the data before it is stored by the provider.
    * @since 1.0.0
    */
-  before: (data: StoredValue, key?: string | string[], path?: string[]) => StoredValue;
+  before: (data: BeforeValue, key: string | string[] | null, path: string[] | null): AfterValue;
 
   /**
    * Normalises the data after it is retrieved from the provider.
    * @since 1.0.0
    */
-  after: (data: StoredValue, key?: string | string[], path?: string[]) => StoredValue;
+  after: (data: AfterValue, key: string | string[] | null, path: string[] | null): BeforeValue;
+
+  /**
+   * Manipulates any existing data to the appropriate format.
+   * @since 1.0.0
+   */
+  autoTransform?: boolean;
 }
 ```
