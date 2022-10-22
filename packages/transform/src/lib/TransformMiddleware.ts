@@ -18,7 +18,6 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   TransformMiddleware.ContextData<BeforeValue, AfterValue>,
   AfterValue
 > {
-  // ... @PreProvider(), this gets called before the provider is called (we will use the before hook)
   @PreProvider()
   public async [Method.Each]<ReturnValue = BeforeValue>(payload: Payloads.Each<ReturnValue>): Promise<Payloads.Each<ReturnValue>> {
     const { after } = this.context;
@@ -32,12 +31,13 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PreProvider()
-  // @ts-expect-error 6133
-  public async [Method.Ensure]<StoredValue = AfterValue>(payload: Payloads.Ensure<BeforeValue>): Promise<Payloads.Ensure<StoredValue>> {
+  public async [Method.Ensure]<ReturnValue = BeforeValue, StoredValue = AfterValue>(
+    payload: Payloads.Ensure<ReturnValue>
+  ): Promise<Payloads.Ensure<StoredValue>> {
     const { key, defaultValue } = payload;
     const { before } = this.context;
 
-    payload.defaultValue = (await before(defaultValue as BeforeValue, key, null)) as BeforeValue;
+    payload.defaultValue = (await before(defaultValue as unknown as BeforeValue, key, null)) as ReturnValue;
 
     await this.provider[Method.Ensure](payload as unknown as Payloads.Ensure<AfterValue>);
 
@@ -131,7 +131,6 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     return payload;
   }
 
-  // ... @PostProvider(), this gets called after the provider is called (we will use the after hook)
   @PostProvider()
   public async [Method.Dec](payload: Payloads.Dec): Promise<Payloads.Dec> {
     const { key, path } = payload;
@@ -315,7 +314,6 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     return payload;
   }
 
-  // ... Utility methods
   private async setBefore(key: string, path: string[] = [], value?: BeforeValue): Promise<Payloads.Set<BeforeValue>> {
     const { after } = this.context;
 
@@ -340,9 +338,6 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     return this.provider[Method.Set]({ method: Method.Set, errors: [], key, value, path });
   }
 
-  /**
-   * Checks the data inside the database, if the data has not been transformed yet, it will be transformed if `autoTransform` is true.
-   */
   private async check(key: string, path: string[] = []): Promise<void> {
     const { autoTransform, before } = this.context;
     const { data } = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path });
