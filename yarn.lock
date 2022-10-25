@@ -430,7 +430,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@favware/cliff-jumper@npm:^1.8.7, @favware/cliff-jumper@npm:^1.8.8":
+"@favware/cliff-jumper@npm:^1.8.8":
   version: 1.9.0
   resolution: "@favware/cliff-jumper@npm:1.9.0"
   dependencies:
@@ -611,16 +611,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@joshdb/provider@npm:2.0.0-next.1a837f5.0":
-  version: 2.0.0-next.1a837f5.0
-  resolution: "@joshdb/provider@npm:2.0.0-next.1a837f5.0"
-  dependencies:
-    "@sapphire/utilities": ^3.9.3
-    reflect-metadata: ^0.1.13
-  checksum: b8289360849e31015664931c88d5dd56843872e2f2c052a5a0e247dd076aef0619981afbccd141b39f42bb7bcbfd723b4b177bad1ee84c00a51097580defbd85
-  languageName: node
-  linkType: hard
-
 "@joshdb/provider@npm:2.0.0-next.24b745c.0":
   version: 2.0.0-next.24b745c.0
   resolution: "@joshdb/provider@npm:2.0.0-next.24b745c.0"
@@ -638,6 +628,16 @@ __metadata:
     "@sapphire/utilities": ^3.11.0
     reflect-metadata: ^0.1.13
   checksum: bb186c513749eb6a08630f3f8ff364cbcdc6d4871e8cadf14b0e488f391c3b5e983e7f8f28c4fae4281099a517338ed08308c894530830f77d0d826c82a7b3c0
+  languageName: node
+  linkType: hard
+
+"@joshdb/provider@npm:2.0.0-next.d32662f.0":
+  version: 2.0.0-next.d32662f.0
+  resolution: "@joshdb/provider@npm:2.0.0-next.d32662f.0"
+  dependencies:
+    "@sapphire/utilities": ^3.9.3
+    reflect-metadata: ^0.1.13
+  checksum: 2e1b84266f8b50ae2ee68af14d91df6a427ae42ff8058671ec4e20e16040b5cae05369996d20a77e93b722dd2315c1743e0360e1896b6b76381e124b71699a38
   languageName: node
   linkType: hard
 
@@ -668,14 +668,15 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@joshdb/transform@workspace:packages/transform"
   dependencies:
-    "@favware/cliff-jumper": ^1.8.7
+    "@favware/cliff-jumper": ^1.8.8
     "@favware/rollup-type-bundler": ^1.0.11
-    "@joshdb/provider": 2.0.0-next.1a837f5.0
-    "@sapphire/utilities": ^3.9.3
-    "@vitest/coverage-c8": ^0.23.4
-    typedoc: ^0.23.15
-    typedoc-json-parser: ^5.0.0
-    vitest: ^0.23.4
+    "@joshdb/provider": 2.0.0-next.d32662f.0
+    "@sapphire/result": ^2.5.0
+    "@sapphire/shapeshift": ^3.7.0
+    "@vitest/coverage-c8": ^0.24.3
+    typedoc: ^0.23.16
+    typedoc-json-parser: ^6.0.0
+    vitest: ^0.24.3
   languageName: unknown
   linkType: soft
 
@@ -810,14 +811,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sapphire/result@npm:^2.6.0":
+"@sapphire/result@npm:^2.5.0, @sapphire/result@npm:^2.6.0":
   version: 2.6.0
   resolution: "@sapphire/result@npm:2.6.0"
   checksum: bab9e963c85c7ea0a410c36617b7d32fca8749739b7fbb61bf7a2eff566d002af78606c379b1a71f2857bf9c04d3f5f1af67f02278da75ac660f2f6ddfef26b5
   languageName: node
   linkType: hard
 
-"@sapphire/shapeshift@npm:^3.8.1":
+"@sapphire/shapeshift@npm:^3.7.0, @sapphire/shapeshift@npm:^3.8.1":
   version: 3.8.1
   resolution: "@sapphire/shapeshift@npm:3.8.1"
   dependencies:
@@ -1088,13 +1089,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/coverage-c8@npm:^0.23.4":
-  version: 0.23.4
-  resolution: "@vitest/coverage-c8@npm:0.23.4"
+"@vitest/coverage-c8@npm:^0.24.3":
+  version: 0.24.5
+  resolution: "@vitest/coverage-c8@npm:0.24.5"
   dependencies:
     c8: ^7.12.0
-    vitest: 0.23.4
-  checksum: ce0e4928074145db50d6600da19965c80af6859e901f5e759202c4ea326dde0fcca0d54a79c0872859c4d8b9630d7328d0cbb90150a625d447c761a6fbf0d6e0
+    vitest: 0.24.5
+  checksum: 54ca01a281df13f6c312a9fd14cff31a214b5886549ebe8179b94423aad831e6c3d5438a45464596703f02c7a4117f1b1a7c31fb84c3779d20c47cbb0dc9a3fb
   languageName: node
   linkType: hard
 
@@ -5062,7 +5063,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strip-literal@npm:^0.4.1":
+"strip-literal@npm:^0.4.2":
   version: 0.4.2
   resolution: "strip-literal@npm:0.4.2"
   dependencies:
@@ -5160,7 +5161,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinybench@npm:^2.1.5, tinybench@npm:^2.3.1":
+"tinybench@npm:^2.3.1":
   version: 2.3.1
   resolution: "tinybench@npm:2.3.1"
   checksum: 74d45fa546d964a8123f98847fc59550945ed7f0d3e5a4ce0f9596d836b51c1d340c2ae0277a8023c15dc9ea3d7cb948a79173bfc46338c9b367c6323ea1eaf3
@@ -5396,19 +5397,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc-json-parser@npm:^5.0.0":
-  version: 5.2.0
-  resolution: "typedoc-json-parser@npm:5.2.0"
+"typedoc-json-parser@npm:^6.0.0":
+  version: 6.0.2
+  resolution: "typedoc-json-parser@npm:6.0.2"
   dependencies:
     "@favware/colorette-spinner": ^1.0.1
+    "@sapphire/node-utilities": ^1.0.0
     colorette: ^2.0.19
     commander: ^9.4.1
     js-yaml: ^4.1.0
     tslib: ^2.4.0
-    typedoc: ^0.23.15
+    typedoc: ^0.23.16
   bin:
     typedoc-json-parser: ./dist/bin/index.js
-  checksum: 3ff37c891758b012a010c8d327477b7bfe8a821d255dbfa1025ba7a4722d8936b408c2d05025082d116ae2b42bd6aa0c58c1e97dad08e090b8e08ab282197efd
+  checksum: 4e8a5e84729d14dc98f24181d90d44d914f92ef119e0ce005b62d051a15c7bef096fd2badff99f7215511bc854a8d13807163ef6f06d294490e80fd9f63e693d
   languageName: node
   linkType: hard
 
@@ -5429,7 +5431,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc@npm:^0.23.15, typedoc@npm:^0.23.20":
+"typedoc@npm:^0.23.16, typedoc@npm:^0.23.20":
   version: 0.23.23
   resolution: "typedoc@npm:0.23.23"
   dependencies:
@@ -5561,7 +5563,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^2.9.12 || ^3.0.0-0":
+"vite@npm:^3.0.0":
   version: 3.2.5
   resolution: "vite@npm:3.2.5"
   dependencies:
@@ -5637,9 +5639,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:0.23.4, vitest@npm:^0.23.4":
-  version: 0.23.4
-  resolution: "vitest@npm:0.23.4"
+"vitest@npm:0.24.5, vitest@npm:^0.24.3":
+  version: 0.24.5
+  resolution: "vitest@npm:0.24.5"
   dependencies:
     "@types/chai": ^4.3.3
     "@types/chai-subset": ^1.3.3
@@ -5647,11 +5649,11 @@ __metadata:
     chai: ^4.3.6
     debug: ^4.3.4
     local-pkg: ^0.4.2
-    strip-literal: ^0.4.1
-    tinybench: ^2.1.5
+    strip-literal: ^0.4.2
+    tinybench: ^2.3.1
     tinypool: ^0.3.0
     tinyspy: ^1.0.2
-    vite: ^2.9.12 || ^3.0.0-0
+    vite: ^3.0.0
   peerDependencies:
     "@edge-runtime/vm": "*"
     "@vitest/browser": "*"
@@ -5671,7 +5673,7 @@ __metadata:
       optional: true
   bin:
     vitest: vitest.mjs
-  checksum: c0356ff585d6f85678abe4e4f61362ea55af87b15f9b1fc478f5fed511627efa5f849a1530709fa2ca09a3f5e93dd16dfaf6570c9cd84ca6fd6ef387aa8ee512
+  checksum: 801d153082ec9d237d8720783dc939aa8c8a4cdd71625ddac997f99a98664b055a0e3efbcb3af648d44f0b8b80c014d48150b2c281870023628c1bdffa336d08
   languageName: node
   linkType: hard
 
