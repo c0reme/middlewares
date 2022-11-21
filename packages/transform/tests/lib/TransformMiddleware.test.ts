@@ -17,7 +17,6 @@ describe('TransformMiddleware', () => {
     type BeforeValue = number | { [x: string]: number | number[] };
     type AfterValue = string | { [x: string]: string | string[] };
 
-    // @ts-expect-error 2322
     const store = new JoshMiddlewareStore({ provider: new MapProvider() });
     const transform = new TransformMiddleware<BeforeValue, AfterValue>({
       before(data: any) {
@@ -81,6 +80,17 @@ describe('TransformMiddleware', () => {
 
     beforeEach(async () => {
       await store.provider[Method.Clear]({ method: Method.Clear, errors: [] });
+    });
+
+    afterEach(async () => {
+      const keys = (await store.provider[Method.Keys]({ method: Method.Keys, errors: [] })).data;
+
+      for (const key of keys!) {
+        const value = (await store.provider.getMetadata(key)) as (string | string[])[];
+        const { data } = await store.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+
+        if (value === data) return console.log(`value === data for "${key}", please fix`);
+      }
     });
 
     describe(Method.Dec, () => {
@@ -889,7 +899,7 @@ describe('TransformMiddleware', () => {
           method: Method.Update,
           errors: [],
           key: 'key',
-          hook: (data: any) => ({ a: (data.a ?? 3) + 1, b: '2', c: [1] })
+          hook: (data: any) => ({ a: (data.a ?? 3) + 1, b: '2', c: [1], d: { e: 'hello world' } })
         });
 
         const { method, trigger, errors, hook } = payload;
@@ -897,11 +907,11 @@ describe('TransformMiddleware', () => {
         expect(method).toBe(Method.Update);
         expect(trigger).toBeUndefined();
         expect(errors).toStrictEqual([]);
-        expect(hook({} as any, 'key')).toStrictEqual({ a: '4', b: '2', c: ['1'] });
+        expect(hook({} as any, 'key')).toStrictEqual({ a: '4', b: '2', c: ['1'], d: { e: 'hello world' } });
 
         const getAfter = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
 
-        expect(getAfter.data).toStrictEqual({ a: '2', b: '2', c: ['1'] });
+        expect(getAfter.data).toStrictEqual({ a: '2', b: '2', c: ['1'], d: { e: 'hello world' } });
       });
     });
 

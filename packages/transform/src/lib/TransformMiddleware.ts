@@ -8,18 +8,26 @@ import {
   isSomeByValuePayload,
   JoshMiddleware,
   Method,
-  Payloads,
+  Payload,
   PostProvider,
-  PreProvider
+  PreProvider,
+  resolveVersion,
+  Semver
 } from '@joshdb/provider';
+import { arrayStrictEquals, Awaitable, objectToTuples } from '@sapphire/utilities';
 
 @ApplyMiddlewareOptions({ name: 'transform' })
 export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> extends JoshMiddleware<
+  // @ts-expect-error 2322 - 'ContextData<BeforeValue, AfterValue>' has properties in common with type 'Context', ts thinks they are incompatible
   TransformMiddleware.ContextData<BeforeValue, AfterValue>,
   AfterValue
 > {
+  public get version(): Semver {
+    return resolveVersion('[VI]{version}[/VI]');
+  }
+
   @PreProvider()
-  public async [Method.Each]<ReturnValue = BeforeValue>(payload: Payloads.Each<ReturnValue>): Promise<Payloads.Each<ReturnValue>> {
+  public async [Method.Each]<ReturnValue = BeforeValue>(payload: Payload.Each<ReturnValue>): Promise<Payload.Each<ReturnValue>> {
     const { after } = this.context;
     const hook = async (value: AfterValue, key: string) => {
       return payload.hook((await after(value, key, null)) as ReturnValue, key) as ReturnValue;
@@ -32,22 +40,26 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
 
   @PreProvider()
   public async [Method.Ensure]<ReturnValue = BeforeValue, StoredValue = AfterValue>(
-    payload: Payloads.Ensure<ReturnValue>
-  ): Promise<Payloads.Ensure<StoredValue>> {
+    payload: Payload.Ensure<ReturnValue>
+  ): Promise<Payload.Ensure<StoredValue>> {
     const { key, defaultValue } = payload;
-    const { before } = this.context;
+    const { after, before } = this.context;
 
     payload.defaultValue = (await before(defaultValue as unknown as BeforeValue, key, null)) as ReturnValue;
 
-    await this.provider[Method.Ensure](payload as unknown as Payloads.Ensure<AfterValue>);
+    await this.provider[Method.Ensure](payload as unknown as Payload.Ensure<AfterValue>);
 
-    return payload as unknown as Payloads.Ensure<StoredValue>;
+    const data = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+
+    await this.provider.setMetadata(key, after(data as AfterValue, key, null));
+
+    return payload as unknown as Payload.Ensure<StoredValue>;
   }
 
   @PreProvider()
   public async [Method.Entries]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
-    payload: Payloads.Entries<StoredValue>
-  ): Promise<Payloads.Entries<ReturnValue>> {
+    payload: Payload.Entries<StoredValue>
+  ): Promise<Payload.Entries<ReturnValue>> {
     const { after } = this.context;
     const { data } = await this.provider[Method.Entries]({ method: Method.Entries, errors: [] });
 
@@ -57,28 +69,29 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
       payload.data[key] = (await after(value as AfterValue, key, null)) as StoredValue;
     }
 
-    return payload as unknown as Payloads.Entries<ReturnValue>;
+    return payload as unknown as Payload.Entries<ReturnValue>;
   }
 
   public async [Method.Map]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
-    payload: Payloads.Map.ByHook<StoredValue, ReturnValue>
-  ): Promise<Payloads.Map.ByHook<StoredValue, ReturnValue>>;
+    payload: Payload.Map.ByHook<StoredValue, ReturnValue>
+  ): Promise<Payload.Map.ByHook<StoredValue, ReturnValue>>;
 
-  public async [Method.Map]<ReturnValue = BeforeValue>(payload: Payloads.Map.ByPath<ReturnValue>): Promise<Payloads.Map.ByPath<ReturnValue>>;
+  public async [Method.Map]<ReturnValue = BeforeValue>(payload: Payload.Map.ByPath<ReturnValue>): Promise<Payload.Map.ByPath<ReturnValue>>;
 
   @PreProvider()
   public async [Method.Map]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
-    payload: Payloads.Map<StoredValue, ReturnValue>
-  ): Promise<Payloads.Map<StoredValue, ReturnValue>> {
+    payload: Payload.Map<StoredValue, ReturnValue>
+  ): Promise<Payload.Map<StoredValue, ReturnValue>> {
     const { after } = this.context;
 
     if (isMapByHookPayload(payload)) {
       const hook = async (value: AfterValue, key: string) => {
+        // @ts-expect-error 2322 - We know that the hook is defined.
         return payload.hook!((await after(value, key, null)) as StoredValue, key);
       };
 
-      payload = (await this.provider[Method.Map]({ ...payload, hook })) as unknown as Payloads.Map.ByHook<StoredValue, ReturnValue>;
-    } else if (isMapByPathPayload(payload)) payload = (await this.provider[Method.Map](payload)) as unknown as Payloads.Map.ByPath<ReturnValue>;
+      payload = (await this.provider[Method.Map]({ ...payload, hook })) as unknown as Payload.Map.ByHook<StoredValue, ReturnValue>;
+    } else if (isMapByPathPayload(payload)) payload = (await this.provider[Method.Map](payload)) as unknown as Payload.Map.ByPath<ReturnValue>;
 
     payload.data?.map(async (v) => (await after(v as unknown as AfterValue, null, null)) as ReturnValue);
 
@@ -86,68 +99,98 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PreProvider()
-  public async [Method.Push]<ReturnValue = BeforeValue>(payload: Payloads.Push<ReturnValue>): Promise<Payloads.Push<ReturnValue>> {
-    const { key, value } = payload;
+  public async [Method.Push]<ReturnValue = BeforeValue>(payload: Payload.Push<ReturnValue>): Promise<Payload.Push<ReturnValue>> {
+    const { key, path, value } = payload;
     const { before } = this.context;
 
-    payload.value = (await before(value as unknown as BeforeValue, key, null)) as ReturnValue;
-
+    payload.value = (await before(value as unknown as BeforeValue, key, path)) as ReturnValue;
     await this.provider[Method.Push](payload);
+    await this.updateMetadataPath(key, path);
 
     return payload;
   }
 
   @PreProvider()
-  public async [Method.Set]<StoredValue = AfterValue>(payload: Payloads.Set<StoredValue>): Promise<Payloads.Set<StoredValue>> {
+  public async [Method.Set]<StoredValue = AfterValue>(payload: Payload.Set<StoredValue>): Promise<Payload.Set<StoredValue>> {
     const { key, path, value } = payload;
     const { before } = this.context;
 
     payload.value = (await before(value as unknown as BeforeValue, key, path ?? null)) as StoredValue;
 
-    return this.provider[Method.Set](payload);
+    await this.provider[Method.Set](payload);
+    if (path) {
+      await this.updateMetadataPath(key, path);
+      return payload;
+    }
+
+    const { data } = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+
+    await this.updateMetadataPath(key, this.objectPathKeys(data));
+
+    return payload;
   }
 
   @PreProvider()
-  public async [Method.SetMany](payload: Payloads.SetMany): Promise<Payloads.SetMany> {
+  public async [Method.SetMany](payload: Payload.SetMany): Promise<Payload.SetMany> {
     const { entries } = payload;
     const { before } = this.context;
 
-    payload.entries = entries.map(({ key, path, value }) => ({ key, path, value: before(value as BeforeValue, key, path ?? null) }));
+    entries.forEach(async ({ key, value, path }) => {
+      await this.updateMetadataPath(key, path ?? []);
+      return { key, path, value: (await before(value as BeforeValue, key, path)) as unknown };
+    });
 
+    payload.entries = entries.map(({ key, path, value }) => ({ key, path, value: before(value as BeforeValue, key, path ?? null) }));
     return this.provider[Method.SetMany](payload);
   }
 
   @PreProvider()
   public async [Method.Update]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
-    payload: Payloads.Update<StoredValue, ReturnValue>
-  ): Promise<Payloads.Update<StoredValue, ReturnValue>> {
+    payload: Payload.Update<StoredValue, ReturnValue>
+  ): Promise<Payload.Update<StoredValue, ReturnValue>> {
     const { key, hook } = payload;
     const { before } = this.context;
+    const getBefore = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
 
-    payload.hook = (value: StoredValue) => before(hook!(value, key) as BeforeValue, key, null) as unknown as ReturnValue;
+    payload.hook = (value: StoredValue) => before(hook!(value, key) as BeforeValue, key, null) as Awaitable<ReturnValue>;
 
-    await this.provider[Method.Update](payload as unknown as Payloads.Update<AfterValue, ReturnValue>);
+    await this.provider[Method.Update](payload as unknown as Payload.Update<AfterValue, ReturnValue>);
+
+    const getAfter = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+
+    if (this.getChangedKeys(getBefore.data, getAfter.data).length) {
+      await this.updateMetadataPath(key, this.getChangedKeys(getBefore.data, getAfter.data));
+    }
 
     return payload;
   }
 
   @PostProvider()
-  public async [Method.Dec](payload: Payloads.Dec): Promise<Payloads.Dec> {
-    const { key, path } = payload;
+  public async [Method.Dec](payload: Payload.Dec): Promise<Payload.Dec> {
+    const { after, before } = this.context;
+    const { key } = payload;
+    const getBefore = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+    const beforeValue = after(getBefore.data!, key, null);
 
-    await this.setBefore(key, path);
-
+    await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: beforeValue });
     await this.provider[Method.Dec](payload);
 
-    await this.setAfter(key, path);
+    const getAfter = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+    const afterValue = before(getAfter.data as BeforeValue, key, null);
+
+    await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: afterValue });
+
+    if (this.getChangedKeys(getBefore.data, getAfter.data).length) {
+      await this.updateMetadataPath(key, this.getChangedKeys(getBefore.data, getAfter.data));
+    }
 
     return payload;
   }
 
-  public async [Method.Every]<ReturnValue = BeforeValue>(payload: Payloads.Every.ByHook<ReturnValue>): Promise<Payloads.Every.ByHook<ReturnValue>>;
-  public async [Method.Every](payload: Payloads.Every.ByValue): Promise<Payloads.Every.ByValue>;
+  public async [Method.Every]<ReturnValue = BeforeValue>(payload: Payload.Every.ByHook<ReturnValue>): Promise<Payload.Every.ByHook<ReturnValue>>;
+  public async [Method.Every](payload: Payload.Every.ByValue): Promise<Payload.Every.ByValue>;
   @PostProvider()
-  public async [Method.Every]<ReturnValue = BeforeValue>(payload: Payloads.Every<ReturnValue>): Promise<Payloads.Every<ReturnValue>> {
+  public async [Method.Every]<ReturnValue = BeforeValue>(payload: Payload.Every<ReturnValue>): Promise<Payload.Every<ReturnValue>> {
     const { before, after } = this.context;
 
     if (isEveryByHookPayload(payload)) {
@@ -186,12 +229,20 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
 
   @PostProvider()
   public async [Method.Get]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
-    payload: Payloads.Get<StoredValue>
-  ): Promise<Payloads.Get<ReturnValue>> {
+    payload: Payload.Get<StoredValue>
+  ): Promise<Payload.Get<ReturnValue>> {
     const { key, path, data } = payload;
-    const { after } = this.context;
+    const { after, autoTransform } = this.context;
 
-    await this.check(key, path);
+    if (!(await this.isTransformed(key))) {
+      if (!autoTransform) {
+        process.emitWarning(
+          `The data at "${key}"${
+            Array.isArray(path) ? ` at path "${path.join('.')}"` : ''
+          } has not been transformed yet, please enable "autoTransform" to transform the data automatically or set() the data at the key to transform it.`
+        );
+      }
+    }
 
     if (data) payload.data = (await after(data as unknown as AfterValue, key, path ?? null)) as unknown as StoredValue;
     else {
@@ -200,13 +251,13 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
       payload.data = (await after(data!, key, path ?? null)) as unknown as StoredValue;
     }
 
-    return payload as unknown as Payloads.Get<ReturnValue>;
+    return payload as unknown as Payload.Get<ReturnValue>;
   }
 
   @PostProvider()
   public async [Method.GetMany]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
-    payload: Payloads.GetMany<StoredValue>
-  ): Promise<Payloads.GetMany<ReturnValue>> {
+    payload: Payload.GetMany<StoredValue>
+  ): Promise<Payload.GetMany<ReturnValue>> {
     const { keys } = payload;
     const { after } = this.context;
 
@@ -218,36 +269,54 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
       payload.data[key] = (await after(value!, key, null)) as StoredValue;
     }
 
-    return payload as unknown as Payloads.GetMany<ReturnValue>;
+    return payload as unknown as Payload.GetMany<ReturnValue>;
   }
 
   @PostProvider()
-  public async [Method.Inc](payload: Payloads.Inc): Promise<Payloads.Inc> {
-    const { key, path } = payload;
+  public async [Method.Inc](payload: Payload.Inc): Promise<Payload.Inc> {
+    const { after, before } = this.context;
+    const { key } = payload;
+    const getBefore = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+    const beforeValue = after(getBefore.data!, key, null);
 
-    await this.setBefore(key, path);
-
+    await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: beforeValue });
     await this.provider[Method.Inc](payload);
 
-    await this.setAfter(key, path);
+    const getAfter = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+    const afterValue = before(getAfter.data as BeforeValue, key, null);
+
+    await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: afterValue });
+
+    if (this.getChangedKeys(getBefore.data, getAfter.data).length) {
+      await this.updateMetadataPath(key, this.getChangedKeys(getBefore.data, getAfter.data));
+    }
 
     return payload;
   }
 
-  public async [Method.Math](payload: Payloads.Math): Promise<Payloads.Math> {
+  public async [Method.Math](payload: Payload.Math): Promise<Payload.Math> {
+    const { after, before } = this.context;
     const { key, path } = payload;
+    const getBefore = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path });
+    const beforeValue = after(getBefore.data!, key, null);
 
-    await this.setBefore(key, path);
-
+    await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: beforeValue });
     await this.provider[Method.Math](payload);
 
-    await this.setAfter(key, path);
+    const getAfter = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path });
+    const afterValue = before(getAfter.data as BeforeValue, key, null);
+
+    await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: afterValue });
+
+    if (this.getChangedKeys(getBefore.data, getAfter.data).length) {
+      await this.updateMetadataPath(key, this.getChangedKeys(getBefore.data, getAfter.data));
+    }
 
     return payload;
   }
 
   @PostProvider()
-  public async [Method.Random]<ReturnValue = BeforeValue>(payload: Payloads.Random<ReturnValue>): Promise<Payloads.Random<ReturnValue>> {
+  public async [Method.Random]<ReturnValue = BeforeValue>(payload: Payload.Random<ReturnValue>): Promise<Payload.Random<ReturnValue>> {
     const { data, count, duplicates } = payload;
     const { after } = this.context;
 
@@ -261,10 +330,10 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     return payload;
   }
 
-  public async [Method.Some]<ReturnValue = BeforeValue>(payload: Payloads.Some.ByHook<ReturnValue>): Promise<Payloads.Some.ByHook<ReturnValue>>;
-  public async [Method.Some](payload: Payloads.Some.ByValue): Promise<Payloads.Some.ByValue>;
+  public async [Method.Some]<ReturnValue = BeforeValue>(payload: Payload.Some.ByHook<ReturnValue>): Promise<Payload.Some.ByHook<ReturnValue>>;
+  public async [Method.Some](payload: Payload.Some.ByValue): Promise<Payload.Some.ByValue>;
   @PostProvider()
-  public async [Method.Some]<ReturnValue = BeforeValue>(payload: Payloads.Some<ReturnValue>): Promise<Payloads.Some<ReturnValue>> {
+  public async [Method.Some]<ReturnValue = BeforeValue>(payload: Payload.Some<ReturnValue>): Promise<Payload.Some<ReturnValue>> {
     const { before, after } = this.context;
 
     payload.data = false;
@@ -300,7 +369,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PostProvider()
-  public async [Method.Values]<ReturnValue = BeforeValue>(payload: Payloads.Values<ReturnValue>): Promise<Payloads.Values<ReturnValue>> {
+  public async [Method.Values]<ReturnValue = BeforeValue>(payload: Payload.Values<ReturnValue>): Promise<Payload.Values<ReturnValue>> {
     const { data } = payload;
     const { after } = this.context;
 
@@ -314,44 +383,71 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     return payload;
   }
 
-  private async setBefore(key: string, path: string[] = [], value?: BeforeValue): Promise<Payloads.Set<BeforeValue>> {
-    const { after } = this.context;
-
-    if (!value) {
-      value = (await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path })).data! as unknown as BeforeValue;
-    }
-
-    value = await after(value! as any, key, path ?? null);
-
-    return this.provider[Method.Set]({ method: Method.Set, errors: [], key, value, path });
+  protected fetchVersion() {
+    return this.version;
   }
 
-  private async setAfter(key: string, path: string[] = [], value?: AfterValue): Promise<Payloads.Set<AfterValue>> {
-    const { before } = this.context;
+  private objectPathKeys(obj: unknown): (string | string[])[] {
+    const tuples = objectToTuples(obj as any);
+    const keys = tuples.map(([k]) => {
+      if ((k as string).includes('.')) return (k as string).split('.');
+      return k;
+    });
 
-    if (!value) {
-      value = (await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path })).data!;
-    }
-
-    value = await before(value! as any, key, path ?? null);
-
-    return this.provider[Method.Set]({ method: Method.Set, errors: [], key, value, path });
+    return keys;
   }
 
-  private async check(key: string, path: string[] = []): Promise<void> {
-    const { autoTransform, before } = this.context;
-    const { data } = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path });
+  private getChangedKeys(before: unknown, after: unknown): (string | string[])[] {
+    const beforeKeys = this.objectPathKeys(before);
+    const afterKeys = this.objectPathKeys(after);
+    const keys = [...beforeKeys, ...afterKeys].filter((k) => !beforeKeys.includes(k) || !afterKeys.includes(k));
 
-    if ((await before(data as BeforeValue, null, null)) !== data) {
-      if (autoTransform) await this.setBefore(key, path);
-      else {
-        process.emitWarning(
-          `The data at "${key}"${
-            path.length ? `.${path.join('.')}` : ''
-          } has not been transformed yet, please enable "autoTransform" to transform the data automatically or set() the data at the key to transform it.`
-        );
+    return keys;
+  }
+
+  private async isTransformed(key: string, path?: string[]) {
+    const metadata = this.provider.getMetadata(key) as (string | string[])[];
+
+    if (!Array.isArray(metadata)) return false;
+    if (!path) {
+      const { data } = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+
+      return this.objectPathKeys(data!).every((k) => {
+        if (Array.isArray(k)) {
+          return metadata.some((m) => {
+            if (Array.isArray(m)) return m.every((v, i) => v === k[i]);
+            return m === k[0];
+          });
+        }
+
+        return metadata.some((m) => m[0] === k);
+      });
+    }
+
+    return metadata.some((m) => {
+      if (Array.isArray(m)) return arrayStrictEquals(m, path);
+      return m === path[0];
+    });
+  }
+
+  private async updateMetadataPath(key: string, path: (string | string[])[]) {
+    const metadata = this.provider.getMetadata(key) as (string | string[])[];
+
+    if (!Array.isArray(metadata)) return;
+
+    const newMetadata = metadata.filter((m) => {
+      if (Array.isArray(m)) {
+        return !path.some((p) => {
+          if (Array.isArray(p)) return arrayStrictEquals(m, p);
+          return m[0] === p;
+        });
       }
-    }
+
+      return !path.some((p) => m === p[0]);
+    });
+
+    if (newMetadata.length === 0) await this.provider.deleteMetadata(key);
+    else await this.provider.setMetadata(key, newMetadata);
   }
 }
 
@@ -364,7 +460,7 @@ export namespace TransformMiddleware {
     before: (data: BeforeValue, key: string | string[] | null, path: string[] | null) => AfterValue;
 
     /**
-     * Normalises the data after it is retrieved from the provider.
+     * Normalizes the data after it is retrieved from the provider.
      * @since 1.0.0
      */
     after: (data: AfterValue, key: string | string[] | null, path: string[] | null) => BeforeValue;
