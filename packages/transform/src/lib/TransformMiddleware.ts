@@ -14,7 +14,7 @@ import {
   resolveVersion,
   Semver
 } from '@joshdb/provider';
-import { arrayStrictEquals, Awaitable, objectToTuples } from '@sapphire/utilities';
+import { Awaitable, objectToTuples } from '@sapphire/utilities';
 
 @ApplyMiddlewareOptions({ name: 'transform' })
 export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> extends JoshMiddleware<
@@ -43,15 +43,24 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     payload: Payload.Ensure<ReturnValue>
   ): Promise<Payload.Ensure<StoredValue>> {
     const { key, defaultValue } = payload;
-    const { after, before } = this.context;
+    const { before, autoTransform } = this.context;
 
     payload.defaultValue = (await before(defaultValue as unknown as BeforeValue, key, null)) as ReturnValue;
 
     await this.provider[Method.Ensure](payload as unknown as Payload.Ensure<AfterValue>);
 
-    const data = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+    if (!(await this.isTransformed(key))) {
+      if (autoTransform === true) {
+        const { data } = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
 
-    await this.provider.setMetadata(key, after(data as AfterValue, key, null));
+        await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: data });
+        await this.updateMetadataPath(key, this.objectPathKeys(data));
+      }
+
+      process.emitWarning(
+        `The ensured data at "${key}" has not been transformed yet, please enable "autoTransform" to transform the data automatically or set() the data at the key to transform it.`
+      );
+    }
 
     return payload as unknown as Payload.Ensure<StoredValue>;
   }
@@ -116,7 +125,6 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     const { before } = this.context;
 
     payload.value = (await before(value as unknown as BeforeValue, key, path ?? null)) as StoredValue;
-
     await this.provider[Method.Set](payload);
     if (path) {
       await this.updateMetadataPath(key, path);
@@ -135,13 +143,16 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     const { entries } = payload;
     const { before } = this.context;
 
-    entries.forEach(async ({ key, value, path }) => {
-      await this.updateMetadataPath(key, path ?? []);
-      return { key, path, value: (await before(value as BeforeValue, key, path)) as unknown };
+    payload.entries = entries.map(({ key, path, value }) => ({ key, path, value: before(value as BeforeValue, key, path ?? null) }));
+    await this.provider[Method.SetMany](payload);
+
+    entries.forEach(async ({ key, path }) => {
+      const { data } = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path });
+
+      await this.updateMetadataPath(key, this.objectPathKeys(data));
     });
 
-    payload.entries = entries.map(({ key, path, value }) => ({ key, path, value: before(value as BeforeValue, key, path ?? null) }));
-    return this.provider[Method.SetMany](payload);
+    return payload;
   }
 
   @PreProvider()
@@ -158,7 +169,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
 
     const getAfter = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
 
-    if (this.getChangedKeys(getBefore.data, getAfter.data).length) {
+    if (this.getChangedKeys(getBefore.data, getAfter.data).length! > 0) {
       await this.updateMetadataPath(key, this.getChangedKeys(getBefore.data, getAfter.data));
     }
 
@@ -231,24 +242,23 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   public async [Method.Get]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
     payload: Payload.Get<StoredValue>
   ): Promise<Payload.Get<ReturnValue>> {
-    const { key, path, data } = payload;
+    const { key, path } = payload;
     const { after, autoTransform } = this.context;
 
+    if (!payload.data) payload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path });
+    payload.data = (await after(payload.data! as AfterValue, key, path ?? null)) as StoredValue;
+
     if (!(await this.isTransformed(key))) {
-      if (!autoTransform) {
-        process.emitWarning(
-          `The data at "${key}"${
-            Array.isArray(path) ? ` at path "${path.join('.')}"` : ''
-          } has not been transformed yet, please enable "autoTransform" to transform the data automatically or set() the data at the key to transform it.`
-        );
+      if (autoTransform === true) {
+        await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: path ?? [], value: payload.data });
+        await this.updateMetadataPath(key, this.objectPathKeys(payload.data));
       }
-    }
 
-    if (data) payload.data = (await after(data as unknown as AfterValue, key, path ?? null)) as unknown as StoredValue;
-    else {
-      const { data } = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path });
-
-      payload.data = (await after(data!, key, path ?? null)) as unknown as StoredValue;
+      process.emitWarning(
+        `The data at "${key}"${
+          path.length > 0 ? ` at path "${path.join('.')}"` : ''
+        } has not been transformed yet, please enable "autoTransform" to transform the data automatically or set() the data at the key to transform it.`
+      );
     }
 
     return payload as unknown as Payload.Get<ReturnValue>;
@@ -398,56 +408,57 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   private getChangedKeys(before: unknown, after: unknown): (string | string[])[] {
-    const beforeKeys = this.objectPathKeys(before);
-    const afterKeys = this.objectPathKeys(after);
-    const keys = [...beforeKeys, ...afterKeys].filter((k) => !beforeKeys.includes(k) || !afterKeys.includes(k));
+    const beforeKeys = this.objectPathKeys(before).map((k) => (Array.isArray(k) ? k.join('.') : k));
+    const afterKeys = this.objectPathKeys(after).map((k) => (Array.isArray(k) ? k.join('.') : k));
+    const keys = beforeKeys.filter((m) => !afterKeys.includes(m));
 
     return keys;
   }
 
   private async isTransformed(key: string, path?: string[]) {
-    const metadata = this.provider.getMetadata(key) as (string | string[])[];
+    let metadata = this.provider.getMetadata(key) as (string | string[])[];
 
     if (!Array.isArray(metadata)) return false;
+    metadata = metadata.map((k) => (Array.isArray(k) ? k.join('.') : k));
     if (!path) {
       const { data } = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+      const dataKeys = this.objectPathKeys(data!).map((k) => (Array.isArray(k) ? k.join('.') : k));
 
-      return this.objectPathKeys(data!).every((k) => {
-        if (Array.isArray(k)) {
-          return metadata.some((m) => {
-            if (Array.isArray(m)) return m.every((v, i) => v === k[i]);
-            return m === k[0];
-          });
-        }
-
-        return metadata.some((m) => m[0] === k);
-      });
+      return dataKeys.every((k) => metadata.includes(k));
     }
 
-    return metadata.some((m) => {
-      if (Array.isArray(m)) return arrayStrictEquals(m, path);
-      return m === path[0];
+    return metadata.some((m) => m === path[0]);
+  }
+
+  private mergeMetadataPaths(a: (string | string[])[], b: (string | string[])[]) {
+    a = a.map((k) => (Array.isArray(k) ? k.join('.') : k));
+    b = b.map((k) => (Array.isArray(k) ? k.join('.') : k));
+
+    const paths = [...a, ...b];
+
+    return paths.filter((m, i) => {
+      if (m === '0') return false;
+
+      return !paths.some((p, j) => {
+        if (Array.isArray(p)) return m === p[0] && i !== j;
+        return m === p && i !== j && !(p === '0');
+      });
     });
   }
 
-  private async updateMetadataPath(key: string, path: (string | string[])[]) {
+  private async updateMetadataPath(key: string, newPath: (string | string[])[]) {
     const metadata = this.provider.getMetadata(key) as (string | string[])[];
 
-    if (!Array.isArray(metadata)) return;
+    if (newPath.length === 0) newPath = ['0'];
+    if (metadata === undefined || newPath[0] === '0') return this.provider.setMetadata(key, newPath);
 
-    const newMetadata = metadata.filter((m) => {
-      if (Array.isArray(m)) {
-        return !path.some((p) => {
-          if (Array.isArray(p)) return arrayStrictEquals(m, p);
-          return m[0] === p;
-        });
-      }
+    const diff = newPath.filter((x) => x !== '0' && !metadata.includes(x));
 
-      return !path.some((p) => m === p[0]);
-    });
+    if (diff.length === 0) return;
 
-    if (newMetadata.length === 0) await this.provider.deleteMetadata(key);
-    else await this.provider.setMetadata(key, newMetadata);
+    const paths = this.mergeMetadataPaths(metadata, diff);
+
+    return this.provider.setMetadata(key, paths);
   }
 }
 
