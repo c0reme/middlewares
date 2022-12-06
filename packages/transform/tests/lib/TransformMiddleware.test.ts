@@ -13,6 +13,141 @@ describe('TransformMiddleware', () => {
     });
   });
 
+  describe('init', () => {
+    test('middleware w/ autoTransform THEN middleware GET', async () => {
+      const store = new JoshMiddlewareStore({ provider: new MapProvider() });
+      const transform = new TransformMiddleware({
+        autoTransform: true,
+        before(data: any) {
+          if (!data) return data;
+          if (typeof data === 'number') return data.toString();
+          if (Array.isArray(data)) {
+            return data.map((value) => {
+              if (typeof value === 'number') return value.toString();
+              return value;
+            });
+          }
+
+          if (typeof data === 'object') {
+            for (const [key, value] of Object.entries(data)) {
+              if (typeof value === 'number') Object.assign(data, { [key]: value.toString() });
+              if (Array.isArray(value)) {
+                Object.assign(data, {
+                  [key]: value.map((v) => {
+                    if (typeof v === 'number') return v.toString();
+                    return v;
+                  })
+                });
+              }
+            }
+          }
+
+          return data;
+        },
+        after(data: any) {
+          if (!data) return data;
+          if (typeof data === 'string') return Number(data);
+          if (Array.isArray(data)) {
+            return data.map((value) => {
+              if (typeof value === 'string') return Number(value);
+              return value;
+            });
+          }
+
+          if (typeof data === 'object') {
+            for (const [key, value] of Object.entries(data)) {
+              if (typeof value === 'string') Object.assign(data, { [key]: Number(value) });
+              if (Array.isArray(value)) {
+                Object.assign(data, {
+                  [key]: value.map((v) => {
+                    if (typeof v === 'string') return Number(v);
+                    return v;
+                  })
+                });
+              }
+            }
+          }
+
+          return data;
+        }
+      });
+
+      await transform.init(store);
+
+      await store.provider[Method.Set]({ method: Method.Set, errors: [], key: 'key', path: [], value: 1 });
+
+      const getAfter = await transform[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+
+      expect(getAfter.data).toBe(1);
+    });
+
+    test('middleware w/ autoTransform THEN middleware ENSURE', async () => {
+      const store = new JoshMiddlewareStore({ provider: new MapProvider() });
+      const transform = new TransformMiddleware({
+        autoTransform: true,
+        before(data: any) {
+          if (!data) return data;
+          if (typeof data === 'number') return data.toString();
+          if (Array.isArray(data)) {
+            return data.map((value) => {
+              if (typeof value === 'number') return value.toString();
+              return value;
+            });
+          }
+
+          if (typeof data === 'object') {
+            for (const [key, value] of Object.entries(data)) {
+              if (typeof value === 'number') Object.assign(data, { [key]: value.toString() });
+              if (Array.isArray(value)) {
+                Object.assign(data, {
+                  [key]: value.map((v) => {
+                    if (typeof v === 'number') return v.toString();
+                    return v;
+                  })
+                });
+              }
+            }
+          }
+
+          return data;
+        },
+        after(data: any) {
+          if (!data) return data;
+          if (typeof data === 'string') return Number(data);
+          if (Array.isArray(data)) {
+            return data.map((value) => {
+              if (typeof value === 'string') return Number(value);
+              return value;
+            });
+          }
+
+          if (typeof data === 'object') {
+            for (const [key, value] of Object.entries(data)) {
+              if (typeof value === 'string') Object.assign(data, { [key]: Number(value) });
+              if (Array.isArray(value)) {
+                Object.assign(data, {
+                  [key]: value.map((v) => {
+                    if (typeof v === 'string') return Number(v);
+                    return v;
+                  })
+                });
+              }
+            }
+          }
+
+          return data;
+        }
+      });
+
+      await transform.init(store);
+      await transform[Method.Ensure]({ method: Method.Ensure, errors: [], key: 'key', defaultValue: 1 });
+
+      const getAfter = await transform[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+
+      expect(getAfter.data).toBe(1);
+    });
+  });
+
   describe('can transform provider data', () => {
     type BeforeValue = number | { [x: string]: number | number[] };
     type AfterValue = string | { [x: string]: string | string[] };
@@ -76,21 +211,11 @@ describe('TransformMiddleware', () => {
     beforeAll(async () => {
       // @ts-expect-error 2345
       await transform.init(store);
+      process.emitWarning = () => undefined;
     });
 
     beforeEach(async () => {
       await store.provider[Method.Clear]({ method: Method.Clear, errors: [] });
-    });
-
-    afterEach(async () => {
-      const keys = (await store.provider[Method.Keys]({ method: Method.Keys, errors: [] })).data;
-
-      for (const key of keys!) {
-        const value = (await store.provider.getMetadata(key)) as (string | string[])[];
-        const { data } = await store.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
-
-        if (value === data) return console.log(`value === data for "${key}", please fix`);
-      }
     });
 
     describe(Method.Dec, () => {
@@ -109,8 +234,10 @@ describe('TransformMiddleware', () => {
         expect(errors).toStrictEqual([]);
 
         const getAfter = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+        const metadata = store.provider.getMetadata('key');
 
         expect(getAfter.data).toBe('1');
+        expect(metadata).toStrictEqual(['0']);
       });
     });
 
@@ -182,6 +309,25 @@ describe('TransformMiddleware', () => {
         const getAfter = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
 
         expect(getAfter.data).toBe('2');
+      });
+
+      test('CHECK transform metadata', async () => {
+        await store.provider[Method.Set]({ method: Method.Set, errors: [], key: 'key', path: [], value: 1 });
+
+        const getBefore = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+
+        expect(getBefore.data).toBe(1);
+
+        const payload = await transform[Method.Ensure]({ method: Method.Ensure, errors: [], key: 'key', defaultValue: 2 });
+        const { method, trigger, errors } = payload;
+
+        expect(method).toBe(Method.Ensure);
+        expect(trigger).toBeUndefined();
+        expect(errors).toStrictEqual([]);
+
+        const metadata = store.provider.getMetadata('key');
+
+        expect(metadata).toStrictEqual(['0']);
       });
     });
 
@@ -379,6 +525,22 @@ describe('TransformMiddleware', () => {
 
         expect(getAfter.data).toBe('1');
       });
+
+      test('CHECK transform metadata', async () => {
+        await store.provider[Method.Set]({ method: Method.Set, errors: [], key: 'key', path: [], value: 1 });
+
+        const payload = await transform[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+        const { method, trigger, errors } = payload;
+
+        expect(method).toBe(Method.Get);
+        expect(trigger).toBeUndefined();
+        expect(errors).toStrictEqual([]);
+        expect(payload.data).toBe(1);
+
+        const metadata = store.provider.getMetadata('key');
+
+        expect(metadata).toStrictEqual(['0']);
+      });
     });
 
     describe(Method.GetMany, () => {
@@ -433,8 +595,10 @@ describe('TransformMiddleware', () => {
         expect(errors).toStrictEqual([]);
 
         const getAfter = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+        const metadata = store.provider.getMetadata('key');
 
         expect(getAfter.data).toBe('2');
+        expect(metadata).toStrictEqual(['0']);
       });
     });
 
@@ -551,8 +715,10 @@ describe('TransformMiddleware', () => {
         expect(errors).toStrictEqual([]);
 
         const getAfter = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+        const metadata = store.provider.getMetadata('key');
 
         expect(getAfter.data).toBe('4');
+        expect(metadata).toStrictEqual(['0']);
       });
 
       test('GIVEN provider w/ data THEN middleware can subtract 3', async () => {
@@ -578,8 +744,10 @@ describe('TransformMiddleware', () => {
         expect(errors).toStrictEqual([]);
 
         const getAfter = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+        const metadata = store.provider.getMetadata('key');
 
         expect(getAfter.data).toBe('1');
+        expect(metadata).toStrictEqual(['0']);
       });
 
       test('GIVEN provider w/ data THEN middleware can multiply by 3', async () => {
@@ -605,8 +773,10 @@ describe('TransformMiddleware', () => {
         expect(errors).toStrictEqual([]);
 
         const getAfter = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+        const metadata = store.provider.getMetadata('key');
 
         expect(getAfter.data).toBe('3');
+        expect(metadata).toStrictEqual(['0']);
       });
 
       test('GIVEN provider w/ data THEN middleware can divide by 3', async () => {
@@ -632,8 +802,10 @@ describe('TransformMiddleware', () => {
         expect(errors).toStrictEqual([]);
 
         const getAfter = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+        const metadata = store.provider.getMetadata('key');
 
         expect(getAfter.data).toBe('1');
+        expect(metadata).toStrictEqual(['0']);
       });
     });
 
@@ -653,8 +825,10 @@ describe('TransformMiddleware', () => {
         expect(errors).toStrictEqual([]);
 
         const getAfter = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+        const metadata = store.provider.getMetadata('key');
 
         expect(getAfter.data).toStrictEqual(['1', '2', '3', '4']);
+        expect(metadata).toStrictEqual(['0']);
       });
 
       test('GIVEN provider w/ data THEN middleware can push to array in object', async () => {
@@ -671,9 +845,11 @@ describe('TransformMiddleware', () => {
         expect(trigger).toBeUndefined();
         expect(errors).toStrictEqual([]);
 
-        const getAfter = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+        const getAfter = await store.provider[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: ['c'] });
+        const metadata = store.provider.getMetadata('key');
 
-        expect(getAfter.data).toStrictEqual({ a: '1', b: '2', c: ['3', '4'] });
+        expect(getAfter.data).toStrictEqual(['3', '4']);
+        expect(metadata).toStrictEqual(['c']);
       });
     });
 
@@ -737,6 +913,12 @@ describe('TransformMiddleware', () => {
         expect(trigger).toBeUndefined();
         expect(errors).toStrictEqual([]);
         expect(value).toBe('1');
+
+        const metadata = store.provider.getMetadata('key');
+
+        console.log(metadata);
+
+        expect(metadata).toStrictEqual(['0']);
       });
 
       test(`GIVEN provider w/ data THEN manipulate and normalise data`, async () => {
@@ -779,6 +961,12 @@ describe('TransformMiddleware', () => {
         expect(errors).toStrictEqual([]);
         expect(entries).toContainEqual({ key: 'key', path: [], value: '1' });
         expect(entries).toContainEqual({ key: 'anotherKey', path: [], value: { a: '1', b: '2', c: ['1'] } });
+
+        const metadata1 = store.provider.getMetadata('key');
+        const metadata2 = store.provider.getMetadata('anotherKey');
+
+        expect(metadata1).toStrictEqual(['0']);
+        expect(metadata2).toStrictEqual(['a', 'b', 'c']);
       });
 
       test(`GIVEN middleware w/ data THEN manipulate and normalise data`, async () => {
