@@ -4,7 +4,7 @@
 
 # @joshdb/transform
 
-**A data manipulation middleware for Josh.**
+**A data manipulation middleware for Josh that parses data through a before and after function to transform the data to be stored.**
 
 [![GitHub](https://img.shields.io/github/license/josh-development/middlewares)](https://github.com/josh-development/middlewares/blob/main/LICENSE.md)
 [![codecov](https://codecov.io/gh/josh-development/middlewares/branch/main/graph/badge.svg?token=JnJcjxqT3k)](https://codecov.io/gh/josh-development/middlewares)
@@ -16,7 +16,7 @@
 
 ## Description
 
-A data manipulation middleware for Josh.
+A data manipulation middleware for Josh that parses data through a before and after function to transform the data to be stored.
 
 ## Features
 

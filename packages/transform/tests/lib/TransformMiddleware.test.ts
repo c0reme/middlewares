@@ -19,60 +19,17 @@ describe('TransformMiddleware', () => {
       const transform = new TransformMiddleware({
         autoTransform: true,
         before(data: any) {
-          if (!data) return data;
-          if (typeof data === 'number') return data.toString();
-          if (Array.isArray(data)) {
-            return data.map((value) => {
-              if (typeof value === 'number') return value.toString();
-              return value;
-            });
-          }
-
-          if (typeof data === 'object') {
-            for (const [key, value] of Object.entries(data)) {
-              if (typeof value === 'number') Object.assign(data, { [key]: value.toString() });
-              if (Array.isArray(value)) {
-                Object.assign(data, {
-                  [key]: value.map((v) => {
-                    if (typeof v === 'number') return v.toString();
-                    return v;
-                  })
-                });
-              }
-            }
-          }
-
-          return data;
+          return JSON.stringify(data);
         },
         after(data: any) {
-          if (!data) return data;
-          if (typeof data === 'string') return Number(data);
-          if (Array.isArray(data)) {
-            return data.map((value) => {
-              if (typeof value === 'string') return Number(value);
-              return value;
-            });
-          }
-
-          if (typeof data === 'object') {
-            for (const [key, value] of Object.entries(data)) {
-              if (typeof value === 'string') Object.assign(data, { [key]: Number(value) });
-              if (Array.isArray(value)) {
-                Object.assign(data, {
-                  [key]: value.map((v) => {
-                    if (typeof v === 'string') return Number(v);
-                    return v;
-                  })
-                });
-              }
-            }
-          }
-
-          return data;
+          return JSON.parse(data);
         }
       });
 
       await transform.init(store);
+      process.emitWarning = (warning: string | Error) => {
+        throw typeof warning === 'string' ? new Error(warning) : warning;
+      };
 
       await store.provider[Method.Set]({ method: Method.Set, errors: [], key: 'key', path: [], value: 1 });
 
@@ -81,70 +38,74 @@ describe('TransformMiddleware', () => {
       expect(getAfter.data).toBe(1);
     });
 
+    test('middleware w/o autoTransform THEN middleware GET', async () => {
+      const store = new JoshMiddlewareStore({ provider: new MapProvider() });
+      const transform = new TransformMiddleware({
+        autoTransform: false,
+        before(data: any) {
+          return JSON.stringify(data);
+        },
+        after(data: any) {
+          return JSON.parse(data);
+        }
+      });
+
+      await transform.init(store);
+      process.emitWarning = () => undefined;
+
+      await store.provider[Method.Set]({ method: Method.Set, errors: [], key: 'key', path: [], value: 1 });
+
+      const payload = await transform[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+      const { method, data } = payload;
+
+      expect(method).toBe(Method.Get);
+      expect(data).toBe(1);
+    });
+
     test('middleware w/ autoTransform THEN middleware ENSURE', async () => {
       const store = new JoshMiddlewareStore({ provider: new MapProvider() });
       const transform = new TransformMiddleware({
         autoTransform: true,
         before(data: any) {
-          if (!data) return data;
-          if (typeof data === 'number') return data.toString();
-          if (Array.isArray(data)) {
-            return data.map((value) => {
-              if (typeof value === 'number') return value.toString();
-              return value;
-            });
-          }
-
-          if (typeof data === 'object') {
-            for (const [key, value] of Object.entries(data)) {
-              if (typeof value === 'number') Object.assign(data, { [key]: value.toString() });
-              if (Array.isArray(value)) {
-                Object.assign(data, {
-                  [key]: value.map((v) => {
-                    if (typeof v === 'number') return v.toString();
-                    return v;
-                  })
-                });
-              }
-            }
-          }
-
-          return data;
+          return JSON.stringify(data);
         },
         after(data: any) {
-          if (!data) return data;
-          if (typeof data === 'string') return Number(data);
-          if (Array.isArray(data)) {
-            return data.map((value) => {
-              if (typeof value === 'string') return Number(value);
-              return value;
-            });
-          }
-
-          if (typeof data === 'object') {
-            for (const [key, value] of Object.entries(data)) {
-              if (typeof value === 'string') Object.assign(data, { [key]: Number(value) });
-              if (Array.isArray(value)) {
-                Object.assign(data, {
-                  [key]: value.map((v) => {
-                    if (typeof v === 'string') return Number(v);
-                    return v;
-                  })
-                });
-              }
-            }
-          }
-
-          return data;
+          return JSON.parse(data);
         }
       });
 
       await transform.init(store);
+      process.emitWarning = () => undefined;
+
       await transform[Method.Ensure]({ method: Method.Ensure, errors: [], key: 'key', defaultValue: 1 });
 
       const getAfter = await transform[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
 
       expect(getAfter.data).toBe(1);
+    });
+
+    test('middleware w/o autoTransform THEN middleware ENSURE', async () => {
+      const store = new JoshMiddlewareStore({ provider: new MapProvider() });
+      const transform = new TransformMiddleware({
+        autoTransform: false,
+        before(data: any) {
+          return JSON.stringify(data);
+        },
+        after(data: any) {
+          return JSON.parse(data);
+        }
+      });
+
+      await transform.init(store);
+      process.emitWarning = () => undefined;
+
+      await transform[Method.Ensure]({ method: Method.Ensure, errors: [], key: 'key', defaultValue: 1 });
+
+      const payload = await transform[Method.Get]({ method: Method.Get, errors: [], key: 'key', path: [] });
+      const { method, data } = payload;
+
+      expect(method).toBe(Method.Get);
+      expect(data).toBe(1);
     });
   });
 
@@ -211,7 +172,9 @@ describe('TransformMiddleware', () => {
     beforeAll(async () => {
       // @ts-expect-error 2345
       await transform.init(store);
-      process.emitWarning = () => undefined;
+      process.emitWarning = (warning: string | Error) => {
+        throw typeof warning === 'string' ? new Error(warning) : warning;
+      };
     });
 
     beforeEach(async () => {
