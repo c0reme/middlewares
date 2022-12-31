@@ -27,7 +27,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PreProvider()
-  public async [Method.Each]<ReturnValue = BeforeValue>(payload: Payload.Each<ReturnValue>): Promise<Payload.Each<ReturnValue>> {
+  public override async [Method.Each]<ReturnValue = BeforeValue>(payload: Payload.Each<ReturnValue>): Promise<Payload.Each<ReturnValue>> {
     const { after } = this.context;
     const { hook } = payload;
     const transformHook = async (value: AfterValue, key: string) => {
@@ -54,7 +54,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PreProvider()
-  public async [Method.Ensure]<ReturnValue = BeforeValue, StoredValue = AfterValue>(
+  public override async [Method.Ensure]<ReturnValue = BeforeValue, StoredValue = AfterValue>(
     payload: Payload.Ensure<ReturnValue>
   ): Promise<Payload.Ensure<StoredValue>> {
     const { key, defaultValue } = payload;
@@ -84,7 +84,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PreProvider()
-  public async [Method.Entries]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
+  public override async [Method.Entries]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
     payload: Payload.Entries<StoredValue>
   ): Promise<Payload.Entries<ReturnValue>> {
     const { after } = this.context;
@@ -99,14 +99,14 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     return payload as unknown as Payload.Entries<ReturnValue>;
   }
 
-  public async [Method.Map]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
+  public override async [Method.Map]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
     payload: Payload.Map.ByHook<StoredValue, ReturnValue>
   ): Promise<Payload.Map.ByHook<StoredValue, ReturnValue>>;
 
-  public async [Method.Map]<ReturnValue = BeforeValue>(payload: Payload.Map.ByPath<ReturnValue>): Promise<Payload.Map.ByPath<ReturnValue>>;
+  public override async [Method.Map]<ReturnValue = BeforeValue>(payload: Payload.Map.ByPath<ReturnValue>): Promise<Payload.Map.ByPath<ReturnValue>>;
 
   @PreProvider()
-  public async [Method.Map]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
+  public override async [Method.Map]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
     payload: Payload.Map<StoredValue, ReturnValue>
   ): Promise<Payload.Map<StoredValue, ReturnValue>> {
     const { after } = this.context;
@@ -124,7 +124,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PreProvider()
-  public async [Method.Push]<ReturnValue = BeforeValue>(payload: Payload.Push<ReturnValue>): Promise<Payload.Push<ReturnValue>> {
+  public override async [Method.Push]<ReturnValue = BeforeValue>(payload: Payload.Push<ReturnValue>): Promise<Payload.Push<ReturnValue>> {
     const { key, path, value } = payload;
     const { before } = this.context;
 
@@ -136,7 +136,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PreProvider()
-  public async [Method.Set]<StoredValue = AfterValue>(payload: Payload.Set<StoredValue>): Promise<Payload.Set<StoredValue>> {
+  public override async [Method.Set]<StoredValue = AfterValue>(payload: Payload.Set<StoredValue>): Promise<Payload.Set<StoredValue>> {
     const { key, path, value } = payload;
     const { before } = this.context;
 
@@ -158,7 +158,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PreProvider()
-  public async [Method.SetMany](payload: Payload.SetMany): Promise<Payload.SetMany> {
+  public override async [Method.SetMany](payload: Payload.SetMany): Promise<Payload.SetMany> {
     const { entries } = payload;
     const { before } = this.context;
 
@@ -175,7 +175,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PreProvider()
-  public async [Method.Update]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
+  public override async [Method.Update]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
     payload: Payload.Update<StoredValue, ReturnValue>
   ): Promise<Payload.Update<StoredValue, ReturnValue>> {
     const { key, hook } = payload;
@@ -199,7 +199,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PostProvider()
-  public async [Method.Dec](payload: Payload.Dec): Promise<Payload.Dec> {
+  public override async [Method.Dec](payload: Payload.Dec): Promise<Payload.Dec> {
     const { key } = payload;
     const oldDataPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
 
@@ -224,10 +224,13 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     return payload;
   }
 
-  public async [Method.Every]<ReturnValue = BeforeValue>(payload: Payload.Every.ByHook<ReturnValue>): Promise<Payload.Every.ByHook<ReturnValue>>;
-  public async [Method.Every](payload: Payload.Every.ByValue): Promise<Payload.Every.ByValue>;
+  public override async [Method.Every]<ReturnValue = BeforeValue>(
+    payload: Payload.Every.ByHook<ReturnValue>
+  ): Promise<Payload.Every.ByHook<ReturnValue>>;
+
+  public override async [Method.Every](payload: Payload.Every.ByValue): Promise<Payload.Every.ByValue>;
   @PreProvider()
-  public async [Method.Every]<ReturnValue = BeforeValue>(payload: Payload.Every<ReturnValue>): Promise<Payload.Every<ReturnValue>> {
+  public override async [Method.Every]<ReturnValue = BeforeValue>(payload: Payload.Every<ReturnValue>): Promise<Payload.Every<ReturnValue>> {
     const { before, after } = this.context;
 
     if (isEveryByHookPayload(payload)) {
@@ -268,7 +271,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PostProvider()
-  public async [Method.Get]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
+  public override async [Method.Get]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
     payload: Payload.Get<StoredValue>
   ): Promise<Payload.Get<ReturnValue>> {
     const { key, path } = payload;
@@ -300,7 +303,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PostProvider()
-  public async [Method.GetMany]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
+  public override async [Method.GetMany]<StoredValue = AfterValue, ReturnValue = BeforeValue>(
     payload: Payload.GetMany<StoredValue>
   ): Promise<Payload.GetMany<ReturnValue>> {
     const { keys } = payload;
@@ -318,7 +321,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PostProvider()
-  public async [Method.Inc](payload: Payload.Inc): Promise<Payload.Inc> {
+  public override async [Method.Inc](payload: Payload.Inc): Promise<Payload.Inc> {
     const { key } = payload;
     const oldDataPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
 
@@ -344,7 +347,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PostProvider()
-  public async [Method.Math](payload: Payload.Math): Promise<Payload.Math> {
+  public override async [Method.Math](payload: Payload.Math): Promise<Payload.Math> {
     const { key, path } = payload;
     const oldDataPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
 
@@ -370,7 +373,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PostProvider()
-  public async [Method.Random]<ReturnValue = BeforeValue>(payload: Payload.Random<ReturnValue>): Promise<Payload.Random<ReturnValue>> {
+  public override async [Method.Random]<ReturnValue = BeforeValue>(payload: Payload.Random<ReturnValue>): Promise<Payload.Random<ReturnValue>> {
     const { data, count, duplicates } = payload;
     const { after } = this.context;
 
@@ -384,10 +387,13 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     return payload;
   }
 
-  public async [Method.Some]<ReturnValue = BeforeValue>(payload: Payload.Some.ByHook<ReturnValue>): Promise<Payload.Some.ByHook<ReturnValue>>;
-  public async [Method.Some](payload: Payload.Some.ByValue): Promise<Payload.Some.ByValue>;
+  public override async [Method.Some]<ReturnValue = BeforeValue>(
+    payload: Payload.Some.ByHook<ReturnValue>
+  ): Promise<Payload.Some.ByHook<ReturnValue>>;
+
+  public override async [Method.Some](payload: Payload.Some.ByValue): Promise<Payload.Some.ByValue>;
   @PostProvider()
-  public async [Method.Some]<ReturnValue = BeforeValue>(payload: Payload.Some<ReturnValue>): Promise<Payload.Some<ReturnValue>> {
+  public override async [Method.Some]<ReturnValue = BeforeValue>(payload: Payload.Some<ReturnValue>): Promise<Payload.Some<ReturnValue>> {
     const { before, after } = this.context;
 
     payload.data = false;
@@ -423,7 +429,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   @PostProvider()
-  public async [Method.Values]<ReturnValue = BeforeValue>(payload: Payload.Values<ReturnValue>): Promise<Payload.Values<ReturnValue>> {
+  public override async [Method.Values]<ReturnValue = BeforeValue>(payload: Payload.Values<ReturnValue>): Promise<Payload.Values<ReturnValue>> {
     const { data } = payload;
     const { after } = this.context;
 
