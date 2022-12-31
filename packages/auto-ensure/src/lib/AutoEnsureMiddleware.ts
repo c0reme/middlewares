@@ -18,7 +18,7 @@ export class AutoEnsureMiddleware<StoredValue = unknown> extends JoshMiddleware<
   }
 
   @PreProvider()
-  public async [Method.Dec](payload: Payload.Dec): Promise<Payload.Dec> {
+  public override async [Method.Dec](payload: Payload.Dec): Promise<Payload.Dec> {
     const { key } = payload;
     const { defaultValue, ensureProperties } = this.context;
 
@@ -40,7 +40,7 @@ export class AutoEnsureMiddleware<StoredValue = unknown> extends JoshMiddleware<
   }
 
   @PostProvider()
-  public async [Method.Get]<Value = StoredValue>(payload: Payload.Get<Value>): Promise<Payload.Get<Value>> {
+  public override async [Method.Get]<Value = StoredValue>(payload: Payload.Get<Value>): Promise<Payload.Get<Value>> {
     if (isPayloadWithData(payload)) return payload;
 
     const { key } = payload;
@@ -54,7 +54,7 @@ export class AutoEnsureMiddleware<StoredValue = unknown> extends JoshMiddleware<
   }
 
   @PostProvider()
-  public async [Method.GetMany](payload: Payload.GetMany<StoredValue>): Promise<Payload.GetMany<StoredValue>> {
+  public override async [Method.GetMany](payload: Payload.GetMany<StoredValue>): Promise<Payload.GetMany<StoredValue>> {
     payload.data ??= {};
 
     const { defaultValue } = this.context;
@@ -71,7 +71,7 @@ export class AutoEnsureMiddleware<StoredValue = unknown> extends JoshMiddleware<
   }
 
   @PreProvider()
-  public async [Method.Inc](payload: Payload.Inc): Promise<Payload.Inc> {
+  public override async [Method.Inc](payload: Payload.Inc): Promise<Payload.Inc> {
     const { key } = payload;
     const { defaultValue, ensureProperties } = this.context;
 
@@ -93,7 +93,7 @@ export class AutoEnsureMiddleware<StoredValue = unknown> extends JoshMiddleware<
   }
 
   @PreProvider()
-  public async [Method.Push]<Value>(payload: Payload.Push<Value>): Promise<Payload.Push<Value>> {
+  public override async [Method.Push]<Value>(payload: Payload.Push<Value>): Promise<Payload.Push<Value>> {
     const { key } = payload;
     const { defaultValue, ensureProperties } = this.context;
 
@@ -115,7 +115,7 @@ export class AutoEnsureMiddleware<StoredValue = unknown> extends JoshMiddleware<
   }
 
   @PreProvider()
-  public async [Method.Math](payload: Payload.Math): Promise<Payload.Math> {
+  public override async [Method.Math](payload: Payload.Math): Promise<Payload.Math> {
     const { key } = payload;
     const { defaultValue, ensureProperties } = this.context;
 
@@ -136,33 +136,11 @@ export class AutoEnsureMiddleware<StoredValue = unknown> extends JoshMiddleware<
     return payload;
   }
 
-  public async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove.ByHook<Value>): Promise<Payload.Remove.ByHook<Value>>;
-  public async [Method.Remove](payload: Payload.Remove.ByValue): Promise<Payload.Remove.ByValue>;
+  public override async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove.ByHook<Value>): Promise<Payload.Remove.ByHook<Value>>;
+  public override async [Method.Remove](payload: Payload.Remove.ByValue): Promise<Payload.Remove.ByValue>;
 
   @PreProvider()
-  public async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove<Value>): Promise<Payload.Remove<Value>> {
-    const { key } = payload;
-    const { defaultValue, ensureProperties } = this.context;
-
-    if (ensureProperties) {
-      const getPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
-
-      if (!isPayloadWithData(getPayload)) {
-        await this.provider[Method.Ensure]({ method: Method.Ensure, errors: [], key, defaultValue });
-
-        return payload;
-      }
-
-      const { data } = getPayload;
-
-      await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: mergeDefault(defaultValue as object, data as object) });
-    } else await this.provider[Method.Ensure]({ method: Method.Ensure, errors: [], key, defaultValue });
-
-    return payload;
-  }
-
-  @PreProvider()
-  public async [Method.Set]<Value = StoredValue>(payload: Payload.Set<Value>): Promise<Payload.Set<Value>> {
+  public override async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove<Value>): Promise<Payload.Remove<Value>> {
     const { key } = payload;
     const { defaultValue, ensureProperties } = this.context;
 
@@ -184,7 +162,29 @@ export class AutoEnsureMiddleware<StoredValue = unknown> extends JoshMiddleware<
   }
 
   @PreProvider()
-  public async [Method.SetMany](payload: Payload.SetMany): Promise<Payload.SetMany> {
+  public override async [Method.Set]<Value = StoredValue>(payload: Payload.Set<Value>): Promise<Payload.Set<Value>> {
+    const { key } = payload;
+    const { defaultValue, ensureProperties } = this.context;
+
+    if (ensureProperties) {
+      const getPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
+
+      if (!isPayloadWithData(getPayload)) {
+        await this.provider[Method.Ensure]({ method: Method.Ensure, errors: [], key, defaultValue });
+
+        return payload;
+      }
+
+      const { data } = getPayload;
+
+      await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: mergeDefault(defaultValue as object, data as object) });
+    } else await this.provider[Method.Ensure]({ method: Method.Ensure, errors: [], key, defaultValue });
+
+    return payload;
+  }
+
+  @PreProvider()
+  public override async [Method.SetMany](payload: Payload.SetMany): Promise<Payload.SetMany> {
     const { entries } = payload;
     const { defaultValue, ensureProperties } = this.context;
 
@@ -214,7 +214,9 @@ export class AutoEnsureMiddleware<StoredValue = unknown> extends JoshMiddleware<
   }
 
   @PreProvider()
-  public async [Method.Update]<Value = StoredValue>(payload: Payload.Update<StoredValue, Value>): Promise<Payload.Update<StoredValue, Value>> {
+  public override async [Method.Update]<Value = StoredValue>(
+    payload: Payload.Update<StoredValue, Value>
+  ): Promise<Payload.Update<StoredValue, Value>> {
     const { key } = payload;
     const { defaultValue, ensureProperties } = this.context;
 

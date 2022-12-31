@@ -32,7 +32,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
     return resolveVersion('[VI]{version}[/VI]');
   }
 
-  public async init(store: JoshMiddlewareStore<StoredValue>) {
+  public override async init(store: JoshMiddlewareStore<StoredValue>) {
     await super.init(store);
     await this.fetchCache();
 
@@ -55,7 +55,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PreProvider()
-  public async [Method.Get]<Value = StoredValue>(payload: Payload.Get<Value>): Promise<Payload.Get<Value>> {
+  public override async [Method.Get]<Value = StoredValue>(payload: Payload.Get<Value>): Promise<Payload.Get<Value>> {
     const { key, path } = payload;
     const { provider: cache } = this.context;
     const getPayload = await cache[Method.Get]<CacheMiddleware.Document<Value>>({ method: Method.Get, key, path, errors: [] });
@@ -72,7 +72,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PreProvider()
-  public async [Method.Each](payload: Payload.Each<StoredValue>): Promise<Payload.Each<StoredValue>> {
+  public override async [Method.Each](payload: Payload.Each<StoredValue>): Promise<Payload.Each<StoredValue>> {
     const { hook } = payload;
     const { provider: cache } = this.context;
     const cacheHook = async (value: CacheMiddleware.Document<StoredValue>, key: string) => {
@@ -99,7 +99,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PreProvider()
-  public async [Method.Has](payload: Payload.Has): Promise<Payload.Has> {
+  public override async [Method.Has](payload: Payload.Has): Promise<Payload.Has> {
     const { key, path } = payload;
     const { provider: cache } = this.context;
     const getPayload = await cache[Method.Get]({ method: Method.Get, key, path, errors: [] });
@@ -115,7 +115,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PreProvider()
-  public async [Method.Entries](payload: Payload.Entries<StoredValue>): Promise<Payload.Entries<StoredValue>> {
+  public override async [Method.Entries](payload: Payload.Entries<StoredValue>): Promise<Payload.Entries<StoredValue>> {
     const { provider: cache } = this.context;
     const entriesPayload = await cache[Method.Entries]({ method: Method.Entries, errors: [] });
 
@@ -144,11 +144,11 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
     return payload;
   }
 
-  public async [Method.Every](payload: Payload.Every.ByHook<StoredValue>): Promise<Payload.Every.ByHook<StoredValue>>;
-  public async [Method.Every](payload: Payload.Every.ByValue): Promise<Payload.Every.ByValue>;
+  public override async [Method.Every](payload: Payload.Every.ByHook<StoredValue>): Promise<Payload.Every.ByHook<StoredValue>>;
+  public override async [Method.Every](payload: Payload.Every.ByValue): Promise<Payload.Every.ByValue>;
 
   @PreProvider()
-  public async [Method.Every](payload: Payload.Every<StoredValue>): Promise<Payload.Every<StoredValue>> {
+  public override async [Method.Every](payload: Payload.Every<StoredValue>): Promise<Payload.Every<StoredValue>> {
     const { provider: cache } = this.context;
     const cacheHook = (hook: Payload.Hook<StoredValue, unknown>) => {
       return async (value: CacheMiddleware.Document<StoredValue>, key: string) => {
@@ -198,11 +198,11 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
     return payload;
   }
 
-  public async [Method.Filter](payload: Payload.Filter.ByHook<StoredValue>): Promise<Payload.Filter.ByHook<StoredValue>>;
-  public async [Method.Filter](payload: Payload.Filter.ByValue<StoredValue>): Promise<Payload.Filter.ByValue<StoredValue>>;
+  public override async [Method.Filter](payload: Payload.Filter.ByHook<StoredValue>): Promise<Payload.Filter.ByHook<StoredValue>>;
+  public override async [Method.Filter](payload: Payload.Filter.ByValue<StoredValue>): Promise<Payload.Filter.ByValue<StoredValue>>;
 
   @PreProvider()
-  public async [Method.Filter](payload: Payload.Filter<StoredValue>): Promise<Payload.Filter<StoredValue>> {
+  public override async [Method.Filter](payload: Payload.Filter<StoredValue>): Promise<Payload.Filter<StoredValue>> {
     const { provider: cache } = this.context;
 
     if (isFilterByHookPayload(payload)) {
@@ -271,10 +271,10 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
     return payload;
   }
 
-  public async [Method.Find](payload: Payload.Find.ByHook<StoredValue>): Promise<Payload.Find.ByHook<StoredValue>>;
-  public async [Method.Find](payload: Payload.Find.ByValue<StoredValue>): Promise<Payload.Find.ByValue<StoredValue>>;
+  public override async [Method.Find](payload: Payload.Find.ByHook<StoredValue>): Promise<Payload.Find.ByHook<StoredValue>>;
+  public override async [Method.Find](payload: Payload.Find.ByValue<StoredValue>): Promise<Payload.Find.ByValue<StoredValue>>;
   @PreProvider()
-  public async [Method.Find](payload: Payload.Find<StoredValue>): Promise<Payload.Find<StoredValue>> {
+  public override async [Method.Find](payload: Payload.Find<StoredValue>): Promise<Payload.Find<StoredValue>> {
     const { provider: cache } = this.context;
 
     if (isFindByHookPayload(payload)) {
@@ -339,7 +339,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PreProvider()
-  public async [Method.Keys](payload: Payload.Keys): Promise<Payload.Keys> {
+  public override async [Method.Keys](payload: Payload.Keys): Promise<Payload.Keys> {
     const { provider: cache } = this.context;
 
     await this.populate();
@@ -360,7 +360,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PreProvider()
-  public async [Method.Values](payload: Payload.Values<StoredValue>): Promise<Payload.Values<StoredValue>> {
+  public override async [Method.Values](payload: Payload.Values<StoredValue>): Promise<Payload.Values<StoredValue>> {
     const { provider: cache } = this.context;
 
     await this.populate();
@@ -380,10 +380,13 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
     return payload;
   }
 
-  public async [Method.Map]<Value = StoredValue>(payload: Payload.Map.ByHook<StoredValue, Value>): Promise<Payload.Map.ByHook<StoredValue, Value>>;
-  public async [Method.Map]<Value = StoredValue>(payload: Payload.Map.ByPath<Value>): Promise<Payload.Map.ByPath<Value>>;
+  public override async [Method.Map]<Value = StoredValue>(
+    payload: Payload.Map.ByHook<StoredValue, Value>
+  ): Promise<Payload.Map.ByHook<StoredValue, Value>>;
+
+  public override async [Method.Map]<Value = StoredValue>(payload: Payload.Map.ByPath<Value>): Promise<Payload.Map.ByPath<Value>>;
   @PreProvider()
-  public async [Method.Map]<ReturnValue = StoredValue>(
+  public override async [Method.Map]<ReturnValue = StoredValue>(
     payload: Payload.Map<StoredValue, ReturnValue>
   ): Promise<Payload.Map<StoredValue, ReturnValue>> {
     const { provider: cache } = this.context;
@@ -448,7 +451,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PreProvider()
-  public async [Method.GetMany](payload: Payload.GetMany<StoredValue>): Promise<Payload.GetMany<StoredValue>> {
+  public override async [Method.GetMany](payload: Payload.GetMany<StoredValue>): Promise<Payload.GetMany<StoredValue>> {
     payload.data ??= {};
 
     const { provider: cache } = this.context;
@@ -476,7 +479,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PostProvider()
-  public async [Method.Clear](payload: Payload.Clear): Promise<Payload.Clear> {
+  public override async [Method.Clear](payload: Payload.Clear): Promise<Payload.Clear> {
     const { provider: cache } = this.context;
     const { errors } = await cache[Method.Clear]({ method: Method.Clear, errors: [] });
 
@@ -486,7 +489,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PostProvider()
-  public async [Method.Set]<Value = StoredValue>(payload: Payload.Set<Value>): Promise<Payload.Set<Value>> {
+  public override async [Method.Set]<Value = StoredValue>(payload: Payload.Set<Value>): Promise<Payload.Set<Value>> {
     const { key, value, path } = payload;
     const { provider: cache } = this.context;
     const { errors } = await cache[Method.Set]<CacheMiddleware.Document<Value>>({
@@ -503,7 +506,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PostProvider()
-  public async [Method.SetMany](payload: Payload.SetMany): Promise<Payload.SetMany> {
+  public override async [Method.SetMany](payload: Payload.SetMany): Promise<Payload.SetMany> {
     const { entries, overwrite } = payload;
     const { provider: cache } = this.context;
     const data: Payload.SetMany.KeyPathValue[] = [];
@@ -526,7 +529,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PostProvider()
-  public async [Method.Inc](payload: Payload.Inc): Promise<Payload.Inc> {
+  public override async [Method.Inc](payload: Payload.Inc): Promise<Payload.Inc> {
     const { key, path } = payload;
     const { provider: cache } = this.context;
     const { errors } = await cache[Method.Inc]({ method: Method.Inc, key, path: ['value', ...path], errors: [] });
@@ -537,7 +540,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PostProvider()
-  public async [Method.Dec](payload: Payload.Dec): Promise<Payload.Dec> {
+  public override async [Method.Dec](payload: Payload.Dec): Promise<Payload.Dec> {
     const { key, path } = payload;
     const { provider: cache } = this.context;
     const { errors } = await cache[Method.Dec]({ method: Method.Dec, key, path: ['value', ...path], errors: [] });
@@ -548,7 +551,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PostProvider()
-  public async [Method.Delete](payload: Payload.Delete): Promise<Payload.Delete> {
+  public override async [Method.Delete](payload: Payload.Delete): Promise<Payload.Delete> {
     const { key, path } = payload;
     const { provider: cache } = this.context;
     const { errors } = await cache[Method.Delete]({ method: Method.Delete, key, path: path.length > 0 ? ['value', ...path] : [], errors: [] });
@@ -559,7 +562,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PostProvider()
-  public async [Method.DeleteMany](payload: Payload.DeleteMany): Promise<Payload.DeleteMany> {
+  public override async [Method.DeleteMany](payload: Payload.DeleteMany): Promise<Payload.DeleteMany> {
     const { keys } = payload;
     const { provider: cache } = this.context;
     const { errors } = await cache[Method.DeleteMany]({ method: Method.DeleteMany, keys, errors: [] });
@@ -570,7 +573,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PostProvider()
-  public async [Method.Push]<Value>(payload: Payload.Push<Value>): Promise<Payload.Push<Value>> {
+  public override async [Method.Push]<Value>(payload: Payload.Push<Value>): Promise<Payload.Push<Value>> {
     const { key, value, path } = payload;
     const { provider: cache } = this.context;
     const { errors } = await cache[Method.Push]({
@@ -587,7 +590,7 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PostProvider()
-  public async [Method.Math](payload: Payload.Math): Promise<Payload.Math> {
+  public override async [Method.Math](payload: Payload.Math): Promise<Payload.Math> {
     const { key, path, operand, operator } = payload;
     const { provider: cache } = this.context;
     const { errors } = await cache[Method.Math]({ method: Method.Math, key, path: ['value', ...path], operand, operator, errors: [] });
@@ -597,11 +600,11 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
     return payload;
   }
 
-  public async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove.ByHook<Value>): Promise<Payload.Remove.ByHook<Value>>;
-  public async [Method.Remove](payload: Payload.Remove.ByValue): Promise<Payload.Remove.ByValue>;
+  public override async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove.ByHook<Value>): Promise<Payload.Remove.ByHook<Value>>;
+  public override async [Method.Remove](payload: Payload.Remove.ByValue): Promise<Payload.Remove.ByValue>;
 
   @PostProvider()
-  public async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove<Value>): Promise<Payload.Remove<Value>> {
+  public override async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove<Value>): Promise<Payload.Remove<Value>> {
     const { key, path } = payload;
     const { provider: cache } = this.context;
     const getPayload = await cache[Method.Get]({ method: Method.Get, key, path: [], errors: [] });
@@ -626,7 +629,9 @@ export class CacheMiddleware<StoredValue = unknown> extends JoshMiddleware<Cache
   }
 
   @PostProvider()
-  public async [Method.Update]<Value = StoredValue>(payload: Payload.Update<StoredValue, Value>): Promise<Payload.Update<StoredValue, Value>> {
+  public override async [Method.Update]<Value = StoredValue>(
+    payload: Payload.Update<StoredValue, Value>
+  ): Promise<Payload.Update<StoredValue, Value>> {
     const { key, hook } = payload;
     const { provider: cache } = this.context;
     const getPayload = await cache[Method.Get]({ method: Method.Get, key, path: [], errors: [] });

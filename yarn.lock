@@ -647,6 +647,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@joshdb/ts-config@npm:^1.1.0-next.7fbd1fd.0":
+  version: 1.1.0-pr-130.c8671cc.0
+  resolution: "@joshdb/ts-config@npm:1.1.0-pr-130.c8671cc.0"
+  dependencies:
+    "@sapphire/ts-config": ^3.3.4
+  checksum: cc0a9a86db7c18d0d161dddaca5cd281b66db7758d6b09310299e11ab45c001d95123276aed7e29f2c4426309d4d5616dae11bafdf1be815beb778f285f384e7
+  languageName: node
+  linkType: hard
+
 "@jridgewell/resolve-uri@npm:3.1.0, @jridgewell/resolve-uri@npm:^3.0.3":
   version: 3.1.0
   resolution: "@jridgewell/resolve-uri@npm:3.1.0"
@@ -4406,7 +4415,7 @@ __metadata:
     "@favware/rollup-type-bundler": ^2.0.0
     "@joshdb/eslint-config": 1.1.0-next.7b50e88.0
     "@joshdb/map": 1.1.0-next.98f68cf.0
-    "@sapphire/ts-config": ^3.3.4
+    "@joshdb/ts-config": ^1.1.0-next.7fbd1fd.0
     "@types/node": ^18.11.9
     "@types/prompts": ^2
     "@typescript-eslint/eslint-plugin": ^5.42.1

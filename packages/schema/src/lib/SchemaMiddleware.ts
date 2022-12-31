@@ -19,7 +19,7 @@ export class SchemaMiddleware<StoredValue = unknown> extends JoshMiddleware<Sche
   }
 
   @PreProvider()
-  public async [Method.Dec](payload: Payload.Dec): Promise<Payload.Dec> {
+  public override async [Method.Dec](payload: Payload.Dec): Promise<Payload.Dec> {
     const { key } = payload;
     const { schema } = this.context;
     const getPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
@@ -39,7 +39,7 @@ export class SchemaMiddleware<StoredValue = unknown> extends JoshMiddleware<Sche
   }
 
   @PostProvider()
-  public [Method.Get]<Value = StoredValue>(payload: Payload.Get<Value>): Payload.Get<Value> {
+  public override [Method.Get]<Value = StoredValue>(payload: Payload.Get<Value>): Payload.Get<Value> {
     if (!isPayloadWithData(payload)) return payload;
 
     const { schema } = this.context;
@@ -56,7 +56,7 @@ export class SchemaMiddleware<StoredValue = unknown> extends JoshMiddleware<Sche
   }
 
   @PostProvider()
-  public [Method.GetMany](payload: Payload.GetMany<StoredValue>): Payload.GetMany<StoredValue> {
+  public override [Method.GetMany](payload: Payload.GetMany<StoredValue>): Payload.GetMany<StoredValue> {
     if (!isPayloadWithData(payload)) return payload;
 
     const { schema } = this.context;
@@ -82,7 +82,7 @@ export class SchemaMiddleware<StoredValue = unknown> extends JoshMiddleware<Sche
   }
 
   @PreProvider()
-  public async [Method.Inc](payload: Payload.Inc): Promise<Payload.Inc> {
+  public override async [Method.Inc](payload: Payload.Inc): Promise<Payload.Inc> {
     const { key } = payload;
     const { schema } = this.context;
     const getPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
@@ -102,7 +102,7 @@ export class SchemaMiddleware<StoredValue = unknown> extends JoshMiddleware<Sche
   }
 
   @PreProvider()
-  public async [Method.Push]<Value>(payload: Payload.Push<Value>): Promise<Payload.Push<Value>> {
+  public override async [Method.Push]<Value>(payload: Payload.Push<Value>): Promise<Payload.Push<Value>> {
     const { key } = payload;
     const { schema } = this.context;
     const getPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
@@ -122,7 +122,7 @@ export class SchemaMiddleware<StoredValue = unknown> extends JoshMiddleware<Sche
   }
 
   @PreProvider()
-  public async [Method.Math](payload: Payload.Math): Promise<Payload.Math> {
+  public override async [Method.Math](payload: Payload.Math): Promise<Payload.Math> {
     const { key } = payload;
     const { schema } = this.context;
     const getPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
@@ -141,11 +141,11 @@ export class SchemaMiddleware<StoredValue = unknown> extends JoshMiddleware<Sche
     return payload;
   }
 
-  public async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove.ByHook<Value>): Promise<Payload.Remove.ByHook<Value>>;
-  public async [Method.Remove](payload: Payload.Remove.ByValue): Promise<Payload.Remove.ByValue>;
+  public override async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove.ByHook<Value>): Promise<Payload.Remove.ByHook<Value>>;
+  public override async [Method.Remove](payload: Payload.Remove.ByValue): Promise<Payload.Remove.ByValue>;
 
   @PreProvider()
-  public async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove<Value>): Promise<Payload.Remove<Value>> {
+  public override async [Method.Remove]<Value = StoredValue>(payload: Payload.Remove<Value>): Promise<Payload.Remove<Value>> {
     const { key } = payload;
     const { schema } = this.context;
     const getPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
@@ -165,7 +165,7 @@ export class SchemaMiddleware<StoredValue = unknown> extends JoshMiddleware<Sche
   }
 
   @PreProvider()
-  public async [Method.Set]<Value = StoredValue>(payload: Payload.Set<Value>): Promise<Payload.Set<Value>> {
+  public override async [Method.Set]<Value = StoredValue>(payload: Payload.Set<Value>): Promise<Payload.Set<Value>> {
     const { key, path, value } = payload;
     const { schema } = this.context;
     const getPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
@@ -195,7 +195,7 @@ export class SchemaMiddleware<StoredValue = unknown> extends JoshMiddleware<Sche
   }
 
   @PreProvider()
-  public async [Method.SetMany](payload: Payload.SetMany): Promise<Payload.SetMany> {
+  public override async [Method.SetMany](payload: Payload.SetMany): Promise<Payload.SetMany> {
     const { entries } = payload;
     const { schema } = this.context;
 
@@ -234,7 +234,9 @@ export class SchemaMiddleware<StoredValue = unknown> extends JoshMiddleware<Sche
   }
 
   @PreProvider()
-  public async [Method.Update]<Value = StoredValue>(payload: Payload.Update<StoredValue, Value>): Promise<Payload.Update<StoredValue, Value>> {
+  public override async [Method.Update]<Value = StoredValue>(
+    payload: Payload.Update<StoredValue, Value>
+  ): Promise<Payload.Update<StoredValue, Value>> {
     const { key } = payload;
     const { schema } = this.context;
     const getPayload = await this.provider[Method.Get]({ method: Method.Get, errors: [], key, path: [] });
