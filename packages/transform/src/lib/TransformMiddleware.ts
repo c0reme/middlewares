@@ -216,9 +216,9 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
 
       await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: newValue });
 
-      if (this.getChangedKeys(oldDataPayload.data, newData).length) {
-        await this.updateMetadataPath(key, this.getChangedKeys(oldDataPayload.data, newData));
-      }
+      const paths = this.getChangedKeys(oldDataPayload.data, newData);
+
+      if (paths.length > 0) await this.updateMetadataPath(key, paths);
     }
 
     return payload;
@@ -338,9 +338,9 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
 
       await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: newValue });
 
-      if (this.getChangedKeys(oldDataPayload.data, newData).length) {
-        await this.updateMetadataPath(key, this.getChangedKeys(oldDataPayload.data, newData));
-      }
+      const paths = this.getChangedKeys(oldDataPayload.data, newData);
+
+      if (paths.length > 0) await this.updateMetadataPath(key, paths);
     }
 
     return payload;
@@ -364,9 +364,9 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
 
       await this.provider[Method.Set]({ method: Method.Set, errors: [], key, path: [], value: newValue });
 
-      if (this.getChangedKeys(data, newData).length) {
-        await this.updateMetadataPath(key, this.getChangedKeys(data, newData));
-      }
+      const paths = this.getChangedKeys(oldDataPayload.data, newData);
+
+      if (paths.length > 0) await this.updateMetadataPath(key, paths);
     }
 
     return payload;
