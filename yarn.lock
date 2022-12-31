@@ -399,9 +399,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/eslintrc@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "@eslint/eslintrc@npm:1.4.0"
+"@eslint/eslintrc@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "@eslint/eslintrc@npm:1.4.1"
   dependencies:
     ajv: ^6.12.4
     debug: ^4.3.2
@@ -412,7 +412,7 @@ __metadata:
     js-yaml: ^4.1.0
     minimatch: ^3.1.2
     strip-json-comments: ^3.1.1
-  checksum: 73e39c833deafde8d8706e6fa9b52b6d99927c094ead8e405ea4174e8197ec24aac9ba88ae38cc8ad32eaccf07b9c7fc5dc70761d1fba6da41a928691447305f
+  checksum: cd3e5a8683db604739938b1c1c8b77927dc04fce3e28e0c88e7f2cd4900b89466baf83dfbad76b2b9e4d2746abdd00dd3f9da544d3e311633d8693f327d04cd7
   languageName: node
   linkType: hard
 
@@ -527,7 +527,7 @@ __metadata:
   dependencies:
     "@favware/cliff-jumper": ^1.8.8
     "@favware/rollup-type-bundler": ^2.0.0
-    "@joshdb/provider": 2.0.0-next.d32662f.0
+    "@joshdb/provider": 2.0.0-next.7b50e88.0
     "@sapphire/utilities": ^3.11.0
     "@vitest/coverage-c8": ^0.25.1
     typedoc: ^0.23.20
@@ -542,7 +542,7 @@ __metadata:
   dependencies:
     "@favware/cliff-jumper": ^1.8.8
     "@favware/rollup-type-bundler": ^2.0.0
-    "@joshdb/provider": 2.0.0-next.aff5bcd.0
+    "@joshdb/provider": 2.0.0-next.7b50e88.0
     "@vitest/coverage-c8": ^0.25.1
     catch-exit: ^1.2.2
     typedoc: ^0.23.20
@@ -567,34 +567,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@joshdb/map@npm:1.1.0-next.d5954a5.0":
-  version: 1.1.0-next.d5954a5.0
-  resolution: "@joshdb/map@npm:1.1.0-next.d5954a5.0"
+"@joshdb/map@npm:1.1.0-next.98f68cf.0":
+  version: 1.1.0-next.98f68cf.0
+  resolution: "@joshdb/map@npm:1.1.0-next.98f68cf.0"
   dependencies:
-    "@joshdb/provider": 2.0.0-next.f40a41e.0
+    "@joshdb/provider": 2.0.0-next.24b745c.0
+    "@joshdb/serialize": 1.1.0-next.24b745c.0
     "@sapphire/utilities": ^3.11.0
     property-helpers: ^2.0.0
-  checksum: 087c740ddff4249ea123e5c11590f96d15fdd96a711c62773693fb1f801b28287527d3207e8ba06692ab38a5490db9fd225eac7e92ab3163790c16369d45f8d6
+  checksum: 9f19463289768d076dc6eb4f3a631c4eb6857194be0e871cccaf95c63fe0d08c6f5022a628f51f5b4d402396809bcb37fac481558380a9e2e83ec555dc797626
   languageName: node
   linkType: hard
 
-"@joshdb/provider@npm:2.0.0-next.aff5bcd.0":
-  version: 2.0.0-next.aff5bcd.0
-  resolution: "@joshdb/provider@npm:2.0.0-next.aff5bcd.0"
+"@joshdb/provider@npm:2.0.0-next.24b745c.0":
+  version: 2.0.0-next.24b745c.0
+  resolution: "@joshdb/provider@npm:2.0.0-next.24b745c.0"
   dependencies:
     "@sapphire/utilities": ^3.11.0
     reflect-metadata: ^0.1.13
-  checksum: 6c4184bcc138debc189046e3e301dda0c73839047d0dba92f166179694a3841b40fbcea733ec0d34f1aa334aefce9b76dbec9f0b194ce52f6b7672583505db20
+  checksum: ccc33f7f4d0b4c42a67553198fb42ae48753fcf96b45cac4adadd0e0b0ac3471d0448c2c410733dd7684f51036e59263046e31b9f80c7f65d7fdc65cdc42f099
   languageName: node
   linkType: hard
 
-"@joshdb/provider@npm:2.0.0-next.d32662f.0":
-  version: 2.0.0-next.d32662f.0
-  resolution: "@joshdb/provider@npm:2.0.0-next.d32662f.0"
+"@joshdb/provider@npm:2.0.0-next.7b50e88.0":
+  version: 2.0.0-next.7b50e88.0
+  resolution: "@joshdb/provider@npm:2.0.0-next.7b50e88.0"
   dependencies:
-    "@sapphire/utilities": ^3.9.3
+    "@sapphire/utilities": ^3.11.0
     reflect-metadata: ^0.1.13
-  checksum: 2e1b84266f8b50ae2ee68af14d91df6a427ae42ff8058671ec4e20e16040b5cae05369996d20a77e93b722dd2315c1743e0360e1896b6b76381e124b71699a38
+  checksum: bb186c513749eb6a08630f3f8ff364cbcdc6d4871e8cadf14b0e488f391c3b5e983e7f8f28c4fae4281099a517338ed08308c894530830f77d0d826c82a7b3c0
   languageName: node
   linkType: hard
 
@@ -614,15 +615,22 @@ __metadata:
   dependencies:
     "@favware/cliff-jumper": ^1.8.8
     "@favware/rollup-type-bundler": ^2.0.0
-    "@joshdb/provider": 2.0.0-next.d32662f.0
+    "@joshdb/provider": 2.0.0-next.7b50e88.0
     "@sapphire/result": ^2.6.0
-    "@sapphire/shapeshift": ^3.7.1
+    "@sapphire/shapeshift": ^3.8.1
     "@vitest/coverage-c8": ^0.25.1
     typedoc: ^0.23.20
     typedoc-json-parser: ^7.0.1
     vitest: ^0.25.1
   languageName: unknown
   linkType: soft
+
+"@joshdb/serialize@npm:1.1.0-next.24b745c.0":
+  version: 1.1.0-next.24b745c.0
+  resolution: "@joshdb/serialize@npm:1.1.0-next.24b745c.0"
+  checksum: ed8ecbb8af1782e4ec514fb27adb7b0d62615ae36dd1037be5ee569c28cd462955baff26bf8c7fa43672f804434c6b2a732904da8709917634373709dd49a073
+  languageName: node
+  linkType: hard
 
 "@joshdb/transform@workspace:packages/transform":
   version: 0.0.0-use.local
@@ -638,6 +646,15 @@ __metadata:
     vitest: ^0.25.0
   languageName: unknown
   linkType: soft
+
+"@joshdb/ts-config@npm:^1.1.0-next.7fbd1fd.0":
+  version: 1.1.0-pr-130.c8671cc.0
+  resolution: "@joshdb/ts-config@npm:1.1.0-pr-130.c8671cc.0"
+  dependencies:
+    "@sapphire/ts-config": ^3.3.4
+  checksum: cc0a9a86db7c18d0d161dddaca5cd281b66db7758d6b09310299e11ab45c001d95123276aed7e29f2c4426309d4d5616dae11bafdf1be815beb778f285f384e7
+  languageName: node
+  linkType: hard
 
 "@jridgewell/resolve-uri@npm:3.1.0, @jridgewell/resolve-uri@npm:^3.0.3":
   version: 3.1.0
@@ -777,7 +794,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sapphire/shapeshift@npm:^3.7.1":
+"@sapphire/shapeshift@npm:^3.8.1":
   version: 3.8.1
   resolution: "@sapphire/shapeshift@npm:3.8.1"
   dependencies:
@@ -797,7 +814,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sapphire/utilities@npm:3.11.0, @sapphire/utilities@npm:^3.11.0, @sapphire/utilities@npm:^3.9.3":
+"@sapphire/utilities@npm:3.11.0, @sapphire/utilities@npm:^3.11.0":
   version: 3.11.0
   resolution: "@sapphire/utilities@npm:3.11.0"
   checksum: 3c8521038b8879524e8114f39eefc8b3b06cf825995f709684238b5cb14bd7df06d232a26a88f79160df290a66f9aa3133f5ce4ff8e2398033db9f301ad31e0d
@@ -2116,11 +2133,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.22.0, eslint@npm:^8.27.0, eslint@npm:^8.30.0":
-  version: 8.30.0
-  resolution: "eslint@npm:8.30.0"
+"eslint@npm:^8.22.0, eslint@npm:^8.30.0":
+  version: 8.31.0
+  resolution: "eslint@npm:8.31.0"
   dependencies:
-    "@eslint/eslintrc": ^1.4.0
+    "@eslint/eslintrc": ^1.4.1
     "@humanwhocodes/config-array": ^0.11.8
     "@humanwhocodes/module-importer": ^1.0.1
     "@nodelib/fs.walk": ^1.2.8
@@ -2161,7 +2178,7 @@ __metadata:
     text-table: ^0.2.0
   bin:
     eslint: bin/eslint.js
-  checksum: b7525bb465b342665c3b8bab7e114d514ef1bc4e79f211c919863f9c71767e7412ec82383a22614a92d159783f91101018817000f7c61ce69a5e7015280cafaf
+  checksum: 5e5688bb864edc6b12d165849994812eefa67fb3fc44bb26f53659b63edcd8bcc68389d27cc6cc9e5b79ee22f24b6f311fa3ed047bddcafdec7d84c1b5561e4f
   languageName: node
   linkType: hard
 
@@ -4397,16 +4414,15 @@ __metadata:
     "@favware/npm-deprecate": ^1.0.5
     "@favware/rollup-type-bundler": ^2.0.0
     "@joshdb/eslint-config": 1.1.0-next.7b50e88.0
-    "@joshdb/map": 1.1.0-next.d5954a5.0
-    "@sapphire/eslint-config": ^4.3.8
-    "@sapphire/ts-config": ^3.3.4
+    "@joshdb/map": 1.1.0-next.98f68cf.0
+    "@joshdb/ts-config": ^1.1.0-next.7fbd1fd.0
     "@types/node": ^18.11.9
     "@types/prompts": ^2
     "@typescript-eslint/eslint-plugin": ^5.42.1
     "@typescript-eslint/parser": ^5.42.1
     "@vitest/coverage-c8": ^0.25.1
     colorette: ^2.0.19
-    eslint: ^8.27.0
+    eslint: ^8.30.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-prettier: ^4.2.1
     husky: ^8.0.2
@@ -5150,11 +5166,11 @@ __metadata:
 
 "typescript@patch:typescript@^4.6.3#~builtin<compat/typescript>, typescript@patch:typescript@^4.6.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.7.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.8.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.9.4#~builtin<compat/typescript>":
   version: 4.9.4
-  resolution: "typescript@patch:typescript@npm%3A4.9.4#~builtin<compat/typescript>::version=4.9.4&hash=d73830"
+  resolution: "typescript@patch:typescript@npm%3A4.9.4#~builtin<compat/typescript>::version=4.9.4&hash=ad5954"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 37f6e2c3c5e2aa5934b85b0fddbf32eeac8b1bacf3a5b51d01946936d03f5377fe86255d4e5a4ae628fd0cd553386355ad362c57f13b4635064400f3e8e05b9d
+  checksum: 1caaea6cb7f813e64345190fddc4e6c924d0b698ab81189b503763c4a18f7f5501c69362979d36e19c042d89d936443e768a78b0675690b35eb663d19e0eae71
   languageName: node
   linkType: hard
 

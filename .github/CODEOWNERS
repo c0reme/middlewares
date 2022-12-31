@@ -1,7 +1,5 @@
 /packages/auto-ensure/**/*.ts @RealShadowNova
-/packages/auto-ensure/README.md @RealShadowNova
 /packages/cache/**/*.ts @dan-online
-/packages/cache/README.md @dan-online
 
 /.github/ @RealShadowNova
 /.husky/ @RealShadowNova
@@ -9,5 +7,5 @@
 /.yarn/ @RealShadowNova
 /scripts/ @RealShadowNova
 LICENSE @eslachance
-package.json @RealShadowNova @dan-online
+package.json @RealShadowNova
 README.md @RealShadowNova

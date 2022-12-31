@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A cache middleware for Josh",
   "author": "@joshdb",
+  "contributors": [
+    "DanCodes <dan@dancodes.online> (https://dancodes.online/)"
+  ],
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -22,7 +25,7 @@
     "check-update": "cliff-jumper --dry-run"
   },
   "dependencies": {
-    "@joshdb/provider": "2.0.0-next.aff5bcd.0",
+    "@joshdb/provider": "2.0.0-next.7b50e88.0",
     "catch-exit": "^1.2.2"
   },
   "devDependencies": {
