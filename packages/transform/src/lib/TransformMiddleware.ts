@@ -377,7 +377,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     const { data, count, duplicates } = payload;
     const { after } = this.context;
 
-    if (data) payload.data = data!.map((v) => after(v as unknown as AfterValue, null, null)) as unknown as ReturnValue[];
+    if (data) payload.data = data.map((v) => after(v as unknown as AfterValue, null, null)) as unknown as ReturnValue[];
     else {
       const { data } = await this.provider[Method.Random]({ method: Method.Random, errors: [], count, duplicates });
 
@@ -496,7 +496,6 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/member-ordering
   private async updateMetadataPath(key: string, newPath: (string | string[])[]) {
     const metadata = this.provider.getMetadata(key) as (string | string[])[];
 
@@ -530,6 +529,7 @@ export namespace TransformMiddleware {
     /**
      * Manipulates any existing data to the appropriate format.
      * @since 1.0.0
+     * @default false
      */
     autoTransform?: boolean;
   }
