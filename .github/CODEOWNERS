@@ -1,5 +1,6 @@
 /packages/auto-ensure/**/*.ts @RealShadowNova
 /packages/cache/**/*.ts @dan-online
+/packages/transform/**/*.ts @c0reme
 
 /.github/ @RealShadowNova
 /.husky/ @RealShadowNova
