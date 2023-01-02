@@ -486,7 +486,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   private async isTransformed(key: string, path?: string[]) {
-    let metadata = this.provider.getMetadata(key) as (string | string[])[];
+    let metadata = this.provider.getMetadata(`transform_${key}`) as (string | string[])[];
 
     if (!Array.isArray(metadata)) return false;
     metadata = metadata.map((k) => (Array.isArray(k) ? k.join('.') : k));
@@ -517,10 +517,10 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
   }
 
   private async updateMetadataPath(key: string, newPath: (string | string[])[]) {
-    const metadata = this.provider.getMetadata(key) as (string | string[])[];
+    const metadata = this.provider.getMetadata(`transform_${key}`) as (string | string[])[];
 
     if (newPath.length === 0) newPath = ['0'];
-    if (metadata === undefined || newPath[0] === '0') return this.provider.setMetadata(key, newPath);
+    if (metadata === undefined || newPath[0] === '0') return this.provider.setMetadata(`transform_${key}`, newPath);
 
     const diff = newPath.filter((x) => x !== '0' && !metadata.includes(x));
 
@@ -528,7 +528,7 @@ export class TransformMiddleware<BeforeValue = unknown, AfterValue = unknown> ex
 
     const paths = this.mergeMetadataPaths(metadata, diff);
 
-    return this.provider.setMetadata(key, paths);
+    return this.provider.setMetadata(`transform_${key}`, paths);
   }
 }
 
